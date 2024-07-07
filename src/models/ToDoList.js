@@ -1,6 +1,6 @@
 const Task = require('./Task');
 
-export class List {
+export class ToDoList {
     /**
      * Create a To-Do List.
      * @param {string} name - Name of the To-Do List.
