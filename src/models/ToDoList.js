@@ -1,6 +1,6 @@
 const Task = require('./Task');
 
-export class ToDoList {
+class ToDoList {
     /**
      * Create a To-Do List.
      * @param {string} name - Name of the To-Do List.
@@ -29,30 +29,6 @@ export class ToDoList {
     removeTask(taskName) {
         this.listOfTasks = this.listOfTasks.filter(task => task.name !== taskName);
     }
-
-    /**
-     * Print the contents of the To-Do List to console.
-     */
-    printList() {
-        const nameLength = this.name.length;
-        const taskLengths = this.listOfTasks.map(task => task.name.length);
-        const stepLengths = this.listOfTasks.flatMap(task => task.steps.map(step => step.name.length));
-        const maxLength = Math.max(nameLength, ...taskLengths, ...stepLengths);
-    
-        const border = '+-' + '-'.repeat(maxLength) + '-+';
-        const pad = (str) => str + ' '.repeat(maxLength - str.length);
-    
-        console.log(border);
-        console.log(`| ${pad(this.name)} |`);
-        console.log(border);
-    
-        this.sortTasks();
-        this.listOfTasks.forEach(task => {
-          console.log(`| ${pad(task.name)} |`);
-          task.steps.forEach(step => {
-            console.log(`| - ${pad(step.name)} |`);
-          });
-          console.log(border);
-        });
-      }
 }
+
+module.exports = ToDoList;

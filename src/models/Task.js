@@ -1,6 +1,6 @@
 const Step = require('./Step');
 
-export class Task {
+class Task {
     /**
      * Create a Task to add to a To-Do List.
      * @param {string} name - The name of the Task.
@@ -73,3 +73,5 @@ export class Task {
         this.description = description;
     }
 }
+
+module.exports = Task;

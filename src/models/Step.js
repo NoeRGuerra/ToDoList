@@ -1,4 +1,4 @@
-export class Step {
+class Step {
     /**
      * Create a Step to add to a Task.
      * @param {string} name 
@@ -22,3 +22,5 @@ export class Step {
         this.isComplete = false;
     }
 }
+
+module.exports = Step;
