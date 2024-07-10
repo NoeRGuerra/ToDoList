@@ -10,7 +10,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './src/views/index.html',
       title: 'To-Do List',
       filename: 'index.html',
       inject: 'body',
