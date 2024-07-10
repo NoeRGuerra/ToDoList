@@ -1,0 +1,30 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    color: white;
+}
+
+body {
+    background-color: rgb(39, 39, 39);
+    height: 100vh;
+}
+
+li {
+    list-style-type: none;
+}
+
+.homepage {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
+
+.left {
+    border: 1px solid white;
+}
+
+#top-lists {
+    border: 1px solid white;
+}
