@@ -65,6 +65,30 @@ function populateLists() {
             displayToDoList(list);
         });
     }
+    addNewListForm();
+}
+
+function addNewListForm() {
+    const container = document.querySelector("#lists");
+    const newListForm = document.createElement('form');
+    const newListInput = document.createElement('input');
+    newListInput.type = 'text';
+    newListInput.placeholder = "New List";
+    const newListSubmit = document.createElement('input');
+    newListSubmit.type = 'submit';
+    newListSubmit.value = "+";
+    newListForm.appendChild(newListSubmit);
+    newListForm.appendChild(newListInput);
+    container.appendChild(newListForm);
+
+    newListSubmit.addEventListener('click', (e) => {
+        e.preventDefault();
+        const newListName = newListInput.value;
+        const newList = new ToDoList(newListName);
+        existingLists.push(newList);
+        clearLists();
+        populateLists();
+    });
 }
 
 function clearLists() {
