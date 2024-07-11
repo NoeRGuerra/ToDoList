@@ -4,6 +4,7 @@ const Task = require('./models/Task');
 const Step = require('./models/Step');
 
 const existingLists = [];
+let currentToDoList = null;
 
 function createDemoLists() {
     const cleanKitchenList = new ToDoList('Clean Kitchen');
@@ -58,11 +59,14 @@ function populateLists() {
     const listsContainer = document.querySelector("#lists");
     for (let list of existingLists) {
         const listParagraph = document.createElement('button');
+        const br = document.createElement('br');
         listParagraph.textContent = list.name;
         listsContainer.appendChild(listParagraph);
+        listsContainer.appendChild(br);
         listParagraph.addEventListener('click', () => {
             clearToDoList();
             displayToDoList(list);
+            currentToDoList = list;
         });
     }
     addNewListForm();
@@ -89,6 +93,29 @@ function addNewListForm() {
         clearLists();
         populateLists();
     });
+}
+
+function addNewTaskForm() {
+    const container = document.querySelector(".right");
+    const newTaskForm = document.createElement('form');
+    const newTaskInput = document.createElement('input');
+    newTaskInput.type = 'text';
+    newTaskInput.placeholder = "New List";
+    const newTaskSubmit = document.createElement('input');
+    newTaskSubmit.type = 'submit';
+    newTaskSubmit.value = "+";
+    newTaskForm.appendChild(newTaskSubmit);
+    newTaskForm.appendChild(newTaskInput);
+    container.appendChild(newTaskForm);
+
+    newTaskSubmit.addEventListener('click', (e) => {
+        e.preventDefault();
+        const newTaskName = newTaskInput.value;
+        const newTask = new Task(newTaskName);
+        currentToDoList.listOfTasks.push(newTask);
+        clearToDoList();
+        displayToDoList(currentToDoList);
+    })
 }
 
 function clearLists() {
@@ -122,6 +149,7 @@ function displayToDoList(ToDoList) {
         rightDiv.appendChild(label);
         rightDiv.appendChild(br);
     }
+    addNewTaskForm();
 }
 
 createDemoLists();
@@ -130,4 +158,5 @@ for (let list of existingLists) {
 }
 
 populateLists();
-displayToDoList(existingLists[0]);
+currentToDoList = existingLists[0];
+displayToDoList(currentToDoList);
