@@ -6,6 +6,23 @@ const Step = require('./models/Step');
 const existingLists = [];
 let currentToDoList = null;
 
+function createDefaultList() {
+    const todayList = new ToDoList('Today');
+    existingLists.push(todayList);
+}
+
+function addDefaultList() {
+    createDefaultList();
+    const defaultList = existingLists[0];
+    const container = document.querySelector("#top-lists");
+    const listItem = document.createElement('button');
+    listItem.textContent = defaultList.name;
+    listItem.addEventListener('click', () => {
+        displayToDoList(defaultList);
+    });
+    container.appendChild(listItem);
+}
+
 function createDemoLists() {
     const cleanKitchenList = new ToDoList('Clean Kitchen');
 
@@ -57,16 +74,14 @@ function createDemoLists() {
 
 function populateLists() {
     const listsContainer = document.querySelector("#lists");
-    for (let list of existingLists) {
+    for (let list of existingLists.slice(1)) {
         const listParagraph = document.createElement('button');
         const br = document.createElement('br');
         listParagraph.textContent = list.name;
         listsContainer.appendChild(listParagraph);
         listsContainer.appendChild(br);
         listParagraph.addEventListener('click', () => {
-            clearToDoList();
             displayToDoList(list);
-            currentToDoList = list;
         });
     }
     addNewListForm();
@@ -113,7 +128,6 @@ function addNewTaskForm() {
         const newTaskName = newTaskInput.value;
         const newTask = new Task(newTaskName);
         currentToDoList.listOfTasks.push(newTask);
-        clearToDoList();
         displayToDoList(currentToDoList);
     })
 }
@@ -129,6 +143,7 @@ function clearToDoList() {
 }
 
 function displayToDoList(ToDoList) {
+    clearToDoList();
     console.log(ToDoList);
     const rightDiv = document.querySelector(".right");
     const header = document.createElement('h2');
@@ -150,13 +165,11 @@ function displayToDoList(ToDoList) {
         rightDiv.appendChild(br);
     }
     addNewTaskForm();
+    currentToDoList = ToDoList;
 }
 
+
+addDefaultList();
 createDemoLists();
-for (let list of existingLists) {
-    console.log(list.name);
-}
-
 populateLists();
-currentToDoList = existingLists[0];
-displayToDoList(currentToDoList);
+displayToDoList(existingLists[0]);
