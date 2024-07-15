@@ -129,33 +129,63 @@ function getCurrentToDoList() {
     return currentToDoList;
 }
 
-function displayToDoList(ToDoList) {
-    clearDisplayedToDoList();
+function displayToDoList(ToDoList, clear=true, title=true) {
+    if (clear)
+        clearDisplayedToDoList();
     const rightDiv = document.querySelector(".right");
-    const header = document.createElement('h2');
-    header.textContent = ToDoList.name;
-    rightDiv.appendChild(header);
+    if (title){
+        const header = document.createElement('h2');
+        header.textContent = ToDoList.name;
+        rightDiv.appendChild(header);
+    }
 
-    for (let i = 0; i < ToDoList.listOfTasks.length; i++ ) {
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = i;
-        checkbox.name = i;
-        checkbox.value = i;
-        const label = document.createElement('label');
-        label.htmlFor = i;
-        label.textContent = ToDoList.listOfTasks[i].name;
-        const br = document.createElement('br');
-        rightDiv.appendChild(checkbox);
-        rightDiv.appendChild(label);
-        rightDiv.appendChild(br);
+    for (let task of ToDoList.listOfTasks) {
+        displayTask(task);
     }
     addNewTaskForm(ToDoList);
     setCurrentToDoList(ToDoList);
 }
 
+function displayTask(Task){
+    const numberOfExistingTasks = document.querySelectorAll('.right>input[type=checkbox]').length;
+    const container = document.querySelector(".right");
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = numberOfExistingTasks + 1;
+    checkbox.value = numberOfExistingTasks + 1;
+    const label = document.createElement('label');
+    label.htmlFor = numberOfExistingTasks + 1;
+    label.textContent = Task.name;
+    const br = document.createElement('br');
+    container.appendChild(checkbox);
+    container.appendChild(label);
+    container.appendChild(br);
+}
+
+function addAllTasks() {
+    const container = document.querySelector("#top-lists");
+    const listItem = document.createElement('button');
+    listItem.textContent = "All tasks";
+    listItem.addEventListener('click', displayAllTasks);
+    container.appendChild(listItem);
+}
+
+function displayAllTasks(){
+    clearDisplayedToDoList();
+    const tasksContainer = document.querySelector('.right');
+    const header = document.createElement('h2');
+    header.textContent = "All tasks"
+    tasksContainer.appendChild(header);
+    for (let list of existingLists){
+        for (let task of list.listOfTasks){
+            displayTask(task);
+        }
+    }
+}
+
 export {
     addDefaultList,
+    addAllTasks,
     displayToDoList,
     createDemoLists,
     populateListsContainer,
