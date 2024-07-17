@@ -57,6 +57,14 @@ class Task {
         this.isComplete = false;
     }
 
+    markImportant() {
+        this.isImportant = true;
+    }
+
+    markNotImportant() {
+        this.isImportant = false;
+    }
+
     /**
      * Set a due date for the task.
      * @param {string} dueDate 
