@@ -26,8 +26,11 @@ class ToDoList {
      * Remove a task from the To-Do List.
      * @param {string} taskName - The name of the task to remove.
      */
-    removeTask(taskName) {
-        this.listOfTasks = this.listOfTasks.filter(task => task.name !== taskName);
+    removeTask(index) {
+        if (index < 0 || index >= this.listOfTasks.length) {
+            throw new Error('Invalid Index: Index out of range');
+        }
+        this.listOfTasks.splice(index, 1);    
     }
 }
 

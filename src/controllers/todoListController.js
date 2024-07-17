@@ -140,26 +140,42 @@ function displayToDoList(ToDoList, clear=true, title=true) {
     }
 
     for (let task of ToDoList.listOfTasks) {
-        displayTask(task);
+        displayTask(task, ToDoList);
     }
     addNewTaskForm(ToDoList);
     setCurrentToDoList(ToDoList);
 }
 
-function displayTask(Task){
-    const numberOfExistingTasks = document.querySelectorAll('.right>input[type=checkbox]').length;
-    const container = document.querySelector(".right");
+function displayTask(Task, ToDoList){
+    const index = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
+    const listContainer = document.querySelector(".right");
+    const taskContainer = document.createElement('div');
     const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = numberOfExistingTasks + 1;
-    checkbox.value = numberOfExistingTasks + 1;
+    const removeBtn = document.createElement('button');
     const label = document.createElement('label');
-    label.htmlFor = numberOfExistingTasks + 1;
-    label.textContent = Task.name;
     const br = document.createElement('br');
-    container.appendChild(checkbox);
-    container.appendChild(label);
-    container.appendChild(br);
+    checkbox.type = 'checkbox';
+    checkbox.id = index;
+    checkbox.value = Task.name;
+    checkbox.setAttribute('data-list', ToDoList.name)
+    label.htmlFor = index;
+    label.textContent = Task.name;
+    removeBtn.textContent = '-';
+    removeBtn.addEventListener('click', () => {
+        ToDoList.removeTask(index);
+        let totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
+        let listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
+        if (totalTasks != listTasks){
+            displayAllTasks();
+        } else {
+            displayToDoList(ToDoList);
+        }
+    });
+    taskContainer.appendChild(checkbox);
+    taskContainer.appendChild(label);
+    taskContainer.appendChild(removeBtn);
+    taskContainer.appendChild(br);
+    listContainer.appendChild(taskContainer);
 }
 
 function addAllTasks() {
@@ -178,7 +194,7 @@ function displayAllTasks(){
     tasksContainer.appendChild(header);
     for (let list of existingLists){
         for (let task of list.listOfTasks){
-            displayTask(task);
+            displayTask(task, list);
         }
     }
 }
