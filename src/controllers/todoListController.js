@@ -1,8 +1,8 @@
 import '../views/style.css';
 import { addNewTaskForm } from './taskController';
-const ToDoList = require('../models/ToDoList');
-const Task = require('../models/Task');
-const Step = require('../models/Step');
+import ToDoList from '../models/ToDoList';
+import Task from '../models/Task';
+import Step from '../models/Step';
 
 const existingLists = [];
 let currentToDoList = null;
@@ -243,4 +243,4 @@ export {
     createDemoLists,
     populateListsContainer,
     existingLists
-}
+};

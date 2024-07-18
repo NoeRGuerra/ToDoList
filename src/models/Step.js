@@ -23,4 +23,4 @@ class Step {
     }
 }
 
-module.exports = Step;
+export default Step;

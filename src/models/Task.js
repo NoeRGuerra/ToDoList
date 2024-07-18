@@ -1,4 +1,4 @@
-const Step = require('./Step');
+import Step from './Step';
 
 class Task {
     /**
@@ -82,4 +82,4 @@ class Task {
     }
 }
 
-module.exports = Task;
+export default Task;

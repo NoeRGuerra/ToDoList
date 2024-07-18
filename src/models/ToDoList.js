@@ -1,4 +1,4 @@
-const Task = require('./Task');
+import Task from './Task';
 
 class ToDoList {
     /**
@@ -34,4 +34,4 @@ class ToDoList {
     }
 }
 
-module.exports = ToDoList;
+export default ToDoList;
