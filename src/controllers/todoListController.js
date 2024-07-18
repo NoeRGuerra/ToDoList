@@ -153,6 +153,7 @@ function displayTask(Task, ToDoList){
     const checkbox = document.createElement('input');
     const removeTaskBtn = document.createElement('button');
     const markImportantTaskBtn = document.createElement('button');
+    const showStepsBtn = document.createElement('button');
     const label = document.createElement('label');
     const br = document.createElement('br');
     checkbox.type = 'checkbox';
@@ -181,10 +182,35 @@ function displayTask(Task, ToDoList){
         }
         markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
     });
+    showStepsBtn.textContent = "🔽";
+    showStepsBtn.addEventListener('click', () => {
+        const stepsContainer = document.createElement('div');
+        for (let step of Task.steps){
+            const icon = document.createElement('span');
+            const stepIndex = taskContainer.querySelectorAll('data-task').length;
+            const stepCheckbox = document.createElement('input');
+            const stepLabel = document.createElement('label');
+            stepCheckbox.type = 'checkbox';
+            stepCheckbox.id = stepIndex;
+            stepCheckbox.value = step.name;
+            stepCheckbox.setAttribute('data-task', Task.name);
+            stepLabel.htmlFor = stepIndex;
+            stepLabel.textContent = step.name;
+            icon.textContent = '· ';
+            stepsContainer.appendChild(icon);
+            stepsContainer.appendChild(stepCheckbox);
+            stepsContainer.appendChild(stepLabel);
+            stepsContainer.appendChild(br);
+        }
+        taskContainer.appendChild(stepsContainer);
+    });
     taskContainer.appendChild(checkbox);
     taskContainer.appendChild(label);
     taskContainer.appendChild(removeTaskBtn);
     taskContainer.appendChild(markImportantTaskBtn);
+    if (Task.steps.length > 0){
+        taskContainer.appendChild(showStepsBtn);
+    }
     taskContainer.appendChild(br);
     listContainer.appendChild(taskContainer);
 }
