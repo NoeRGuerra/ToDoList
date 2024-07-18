@@ -1,5 +1,5 @@
 import '../views/style.css';
-import { addNewTaskForm } from './taskController';
+import { addNewTaskForm, displayTask } from './taskController';
 import ToDoList from '../models/ToDoList';
 import Task from '../models/Task';
 import Step from '../models/Step';
@@ -146,75 +146,6 @@ function displayToDoList(ToDoList, clear=true, title=true) {
     setCurrentToDoList(ToDoList);
 }
 
-function displayTask(Task, ToDoList){
-    const index = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
-    const listContainer = document.querySelector(".right");
-    const taskContainer = document.createElement('div');
-    const checkbox = document.createElement('input');
-    const removeTaskBtn = document.createElement('button');
-    const markImportantTaskBtn = document.createElement('button');
-    const showStepsBtn = document.createElement('button');
-    const label = document.createElement('label');
-    const br = document.createElement('br');
-    checkbox.type = 'checkbox';
-    checkbox.id = index;
-    checkbox.value = Task.name;
-    checkbox.setAttribute('data-list', ToDoList.name)
-    label.htmlFor = index;
-    label.textContent = Task.name;
-    removeTaskBtn.textContent = '-';
-    removeTaskBtn.addEventListener('click', () => {
-        ToDoList.removeTask(index);
-        let totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
-        let listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
-        if (totalTasks != listTasks){
-            displayAllTasks();
-        } else {
-            displayToDoList(ToDoList);
-        }
-    });
-    markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
-    markImportantTaskBtn.addEventListener('click', () => {
-        if (Task.isImportant) {
-            Task.markNotImportant();
-        } else {
-            Task.markImportant();
-        }
-        markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
-    });
-    showStepsBtn.textContent = "🔽";
-    showStepsBtn.addEventListener('click', () => {
-        const stepsContainer = document.createElement('div');
-        for (let step of Task.steps){
-            const icon = document.createElement('span');
-            const stepIndex = taskContainer.querySelectorAll('data-task').length;
-            const stepCheckbox = document.createElement('input');
-            const stepLabel = document.createElement('label');
-            stepCheckbox.type = 'checkbox';
-            stepCheckbox.id = stepIndex;
-            stepCheckbox.value = step.name;
-            stepCheckbox.setAttribute('data-task', Task.name);
-            stepLabel.htmlFor = stepIndex;
-            stepLabel.textContent = step.name;
-            icon.textContent = '· ';
-            stepsContainer.appendChild(icon);
-            stepsContainer.appendChild(stepCheckbox);
-            stepsContainer.appendChild(stepLabel);
-            stepsContainer.appendChild(br);
-        }
-        taskContainer.appendChild(stepsContainer);
-    });
-    taskContainer.appendChild(checkbox);
-    taskContainer.appendChild(label);
-    taskContainer.appendChild(removeTaskBtn);
-    taskContainer.appendChild(markImportantTaskBtn);
-    if (Task.steps.length > 0){
-        taskContainer.appendChild(showStepsBtn);
-    }
-    taskContainer.appendChild(br);
-    listContainer.appendChild(taskContainer);
-}
-
 function addAllTasks() {
     const container = document.querySelector("#top-lists");
     const listItem = document.createElement('button');
@@ -242,5 +173,6 @@ export {
     displayToDoList,
     createDemoLists,
     populateListsContainer,
+    displayAllTasks,
     existingLists
 };
