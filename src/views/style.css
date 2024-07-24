@@ -28,3 +28,7 @@ li {
 #top-lists {
     border: 1px solid white;
 }
+
+.sidebar-active {
+    grid-template-columns: 1fr 3fr 1fr;
+}

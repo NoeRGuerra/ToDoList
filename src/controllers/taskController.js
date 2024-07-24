@@ -90,6 +90,9 @@ function displayTask(Task, ToDoList){
     showStepsBtn.addEventListener('click', () => {
         displaySteps(Task, taskContainer);
     });
+    label.addEventListener('click', () => {
+        openTaskSidebar(Task);
+    })
     taskContainer.appendChild(checkbox);
     taskContainer.appendChild(label);
     taskContainer.appendChild(removeTaskBtn);
@@ -99,6 +102,38 @@ function displayTask(Task, ToDoList){
     }
     taskContainer.appendChild(br);
     listContainer.appendChild(taskContainer);
+}
+
+function openTaskSidebar(Task){
+    closeSidebar();
+    const parentContainer = document.querySelector(".homepage");
+    const sidebarContainer = document.createElement('div');
+    sidebarContainer.classList.add('sidebar-display');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 0;
+    checkbox.value = Task.name;
+    const taskTitle = document.createElement('h3');
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = "Close";
+    removeBtn.addEventListener('click', closeSidebar);
+    sidebarContainer.appendChild(checkbox);
+    taskTitle.textContent = Task.name;
+    sidebarContainer.appendChild(taskTitle);
+    displaySteps(Task, sidebarContainer);
+    sidebarContainer.appendChild(removeBtn);
+    parentContainer.appendChild(sidebarContainer);
+    parentContainer.classList.toggle('sidebar-active');
+}
+
+function closeSidebar(){
+    const parentContainer = document.querySelector('.homepage');
+    const sidebarContainer = document.querySelector('.sidebar-display');
+    if (sidebarContainer === null){
+        return;
+    }
+    parentContainer.removeChild(sidebarContainer);
+    parentContainer.classList.toggle('sidebar-active');
 }
 
 export { 
