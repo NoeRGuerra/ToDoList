@@ -72,6 +72,9 @@ function displayTask(Task, ToDoList){
     markImportantTaskBtn.addEventListener('click', () => {
         markTaskAsImportant(Task);
         markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
+        if (document.querySelector('.sidebar-display')){
+            openTaskSidebar(Task, ToDoList, index);
+        }
     });
     label.addEventListener('click', (e) => {
         e.preventDefault();
@@ -92,15 +95,16 @@ function openTaskSidebar(Task, ToDoList, index){
     const taskHeaderContainer = document.createElement('div');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = 'task';
+    checkbox.id = index;
     checkbox.value = Task.name;
     const taskTitle = document.createElement('label');
-    taskTitle.htmlFor = 'task';
+    taskTitle.htmlFor = index;
     const markImportantTaskBtn = document.createElement('button');
     markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
     markImportantTaskBtn.addEventListener('click', () => {
         markTaskAsImportant(Task);
         markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
+        refreshList(ToDoList);
     });
     const closeSidebarBtn = document.createElement('button');
     closeSidebarBtn.textContent = "Close";
