@@ -25,7 +25,7 @@ function addNewTaskForm(ToDoList) {
 
 function markTaskAsImportant(task){
     if (task.isImportant) {
-        taskTask.markNotImportant();
+        task.markNotImportant();
     } else {
         task.markImportant();
     }
@@ -59,9 +59,7 @@ function displayTask(Task, ToDoList){
     const listContainer = document.querySelector(".right");
     const taskContainer = document.createElement('div');
     const checkbox = document.createElement('input');
-    const removeTaskBtn = document.createElement('button');
     const markImportantTaskBtn = document.createElement('button');
-    const showStepsBtn = document.createElement('button');
     const label = document.createElement('label');
     const br = document.createElement('br');
     checkbox.type = 'checkbox';
@@ -70,60 +68,70 @@ function displayTask(Task, ToDoList){
     checkbox.setAttribute('data-list', ToDoList.name)
     label.htmlFor = index;
     label.textContent = Task.name;
-    removeTaskBtn.textContent = '❌';
-    removeTaskBtn.addEventListener('click', () => {
-        ToDoList.removeTask(index);
-        let totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
-        let listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
-        if (totalTasks != listTasks){
-            displayAllTasks();
-        } else {
-            displayToDoList(ToDoList);
-        }
-    });
     markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
     markImportantTaskBtn.addEventListener('click', () => {
         markTaskAsImportant(Task);
         markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
     });
-    showStepsBtn.textContent = "🔽";
-    showStepsBtn.addEventListener('click', () => {
-        displaySteps(Task, taskContainer);
-    });
-    label.addEventListener('click', () => {
-        openTaskSidebar(Task);
+    label.addEventListener('click', (e) => {
+        e.preventDefault();
+        openTaskSidebar(Task, ToDoList, index);
     })
     taskContainer.appendChild(checkbox);
     taskContainer.appendChild(label);
-    taskContainer.appendChild(removeTaskBtn);
     taskContainer.appendChild(markImportantTaskBtn);
-    if (Task.steps.length > 0){
-        taskContainer.appendChild(showStepsBtn);
-    }
     taskContainer.appendChild(br);
     listContainer.appendChild(taskContainer);
 }
 
-function openTaskSidebar(Task){
+function openTaskSidebar(Task, ToDoList, index){
     closeSidebar();
     const parentContainer = document.querySelector(".homepage");
     const sidebarContainer = document.createElement('div');
     sidebarContainer.classList.add('sidebar-display');
+    const taskHeaderContainer = document.createElement('div');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = 0;
+    checkbox.id = 'task';
     checkbox.value = Task.name;
-    const taskTitle = document.createElement('h3');
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = "Close";
-    removeBtn.addEventListener('click', closeSidebar);
-    sidebarContainer.appendChild(checkbox);
+    const taskTitle = document.createElement('label');
+    taskTitle.htmlFor = 'task';
+    const markImportantTaskBtn = document.createElement('button');
+    markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
+    markImportantTaskBtn.addEventListener('click', () => {
+        markTaskAsImportant(Task);
+        markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
+    });
+    const closeSidebarBtn = document.createElement('button');
+    closeSidebarBtn.textContent = "Close";
+    closeSidebarBtn.addEventListener('click', closeSidebar);
+    const deleteTaskBtn = document.createElement('button');
+    deleteTaskBtn.textContent = '❌';
+    deleteTaskBtn.addEventListener('click', () => {
+        closeSidebar();
+        ToDoList.removeTask(index);
+        refreshList(ToDoList);
+    });
     taskTitle.textContent = Task.name;
-    sidebarContainer.appendChild(taskTitle);
+    taskHeaderContainer.appendChild(checkbox);
+    taskHeaderContainer.appendChild(taskTitle);
+    taskHeaderContainer.appendChild(markImportantTaskBtn);
+    sidebarContainer.appendChild(taskHeaderContainer);
     displaySteps(Task, sidebarContainer);
-    sidebarContainer.appendChild(removeBtn);
+    sidebarContainer.appendChild(closeSidebarBtn);
+    sidebarContainer.appendChild(deleteTaskBtn);
     parentContainer.appendChild(sidebarContainer);
     parentContainer.classList.toggle('sidebar-active');
+}
+
+function refreshList(ToDoList){
+    let totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
+    let listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
+    if (totalTasks != listTasks){
+        displayAllTasks();
+    } else {
+        displayToDoList(ToDoList);
+    }
 }
 
 function closeSidebar(){
