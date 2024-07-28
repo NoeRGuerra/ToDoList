@@ -1,8 +1,21 @@
-import task from "../models/Task";
+import Task from "../models/Task";
 import { displayToDoList, displayAllTasks } from './todoListController';
 
 function addNewTaskForm(ToDoList) {
     const container = document.querySelector(".right");
+    const newTaskForm = createNewTaskForm();
+    container.appendChild(newTaskForm);
+
+    newTaskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newTaskName = newTaskForm.querySelector('input[type="text"]').value;
+        const newTask = new Task(newTaskName);
+        ToDoList.listOfTasks.push(newTask);
+        displayToDoList(ToDoList);
+    });
+}
+
+function createNewTaskForm(){
     const newTaskForm = document.createElement('form');
     const newTaskInput = document.createElement('input');
     newTaskInput.type = 'text';
@@ -10,17 +23,8 @@ function addNewTaskForm(ToDoList) {
     const newTaskSubmit = document.createElement('input');
     newTaskSubmit.type = 'submit';
     newTaskSubmit.value = "+";
-    newTaskForm.appendChild(newTaskSubmit);
-    newTaskForm.appendChild(newTaskInput);
-    container.appendChild(newTaskForm);
-
-    newTaskSubmit.addEventListener('click', (e) => {
-        e.preventDefault();
-        const newTaskName = newTaskInput.value;
-        const newTask = new task(newTaskName);
-        ToDoList.listOfTasks.push(newTask);
-        displayToDoList(ToDoList);
-    })
+    newTaskForm.append(newTaskSubmit, newTaskInput);
+    return newTaskForm;
 }
 
 function markTaskAsImportant(task){
@@ -33,41 +37,67 @@ function markTaskAsImportant(task){
 
 function displaySteps(task, taskContainer){
     const stepsContainer = document.createElement('div');
-    const br = document.createElement('br');
-    for (let step of task.steps){
-        const icon = document.createElement('span');
-        const stepIndex = taskContainer.querySelectorAll('data-task').length;
-        const stepCheckbox = document.createElement('input');
-        const stepLabel = document.createElement('label');
-        stepCheckbox.type = 'checkbox';
-        stepCheckbox.id = stepIndex;
-        stepCheckbox.value = step.name;
-        stepCheckbox.setAttribute('data-task', task.name);
-        stepLabel.htmlFor = stepIndex;
-        stepLabel.textContent = step.name;
-        icon.textContent = '· ';
-        stepsContainer.appendChild(icon);
-        stepsContainer.appendChild(stepCheckbox);
-        stepsContainer.appendChild(stepLabel);
-        stepsContainer.appendChild(br);
-    }
+    task.steps.forEach((step, index) => {
+        const stepElement = createStepElement(step, index, task.name);
+        stepsContainer.appendChild(stepElement);
+    });
     taskContainer.appendChild(stepsContainer);
 }
 
-function displayTask(Task, ToDoList){
-    const index = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
-    const listContainer = document.querySelector(".right");
-    const taskContainer = document.createElement('div');
-    const checkbox = document.createElement('input');
-    const markImportantTaskBtn = document.createElement('button');
-    const label = document.createElement('label');
+function createStepElement(step, index, taskName){
+    const icon = document.createElement('span');
+    icon.textContent = '· ';
+    const stepCheckbox = document.createElement('input');
+    stepCheckbox.type = 'checkbox';
+    stepCheckbox.id = index;
+    stepCheckbox.value = step.name;
+    stepCheckbox.setAttribute('data-task', taskName);
+    const stepLabel = document.createElement('label');
+    stepLabel.htmlFor = index;
+    stepLabel.textContent = step.name;
     const br = document.createElement('br');
+    const stepElement = document.createElement('div');
+    stepElement.append(icon, stepCheckbox, stepLabel, br);
+    return stepElement;
+}
+
+function displayTask(Task, ToDoList, index){
+    const listContainer = document.querySelector(".right");
+    const taskContainer = createTaskContainer(Task, ToDoList, index);
+    listContainer.appendChild(taskContainer);
+}
+
+function createTaskContainer(Task, ToDoList, index){
+    const taskContainer = document.createElement('div');
+    const checkbox = createCheckbox(Task.name, index, ToDoList.name);
+    const label = createLabel(Task.name, index);
+    const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
+    label.addEventListener('click', (e) => {
+        e.preventDefault();
+        openTaskSidebar(Task, ToDoList, index);
+    })
+    taskContainer.append(checkbox, label, markImportantTaskBtn, document.createElement('br'));
+    return taskContainer;
+}
+
+function createCheckbox(taskName, index, listName){
+    const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = index;
-    checkbox.value = Task.name;
-    checkbox.setAttribute('data-list', ToDoList.name)
+    checkbox.value = taskName;
+    checkbox.setAttribute('data-list', listName);
+    return checkbox;    
+}
+
+function createLabel(taskName, index){
+    const label = document.createElement('label');
     label.htmlFor = index;
-    label.textContent = Task.name;
+    label.textContent = taskName;
+    return label;
+}
+
+function createMarkImportantButton(Task, ToDoList, index) {
+    const markImportantTaskBtn = document.createElement('button');
     markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
     markImportantTaskBtn.addEventListener('click', () => {
         markTaskAsImportant(Task);
@@ -76,61 +106,56 @@ function displayTask(Task, ToDoList){
             openTaskSidebar(Task, ToDoList, index);
         }
     });
-    label.addEventListener('click', (e) => {
-        e.preventDefault();
-        openTaskSidebar(Task, ToDoList, index);
-    })
-    taskContainer.appendChild(checkbox);
-    taskContainer.appendChild(label);
-    taskContainer.appendChild(markImportantTaskBtn);
-    taskContainer.appendChild(br);
-    listContainer.appendChild(taskContainer);
+    return markImportantTaskBtn;
 }
 
 function openTaskSidebar(Task, ToDoList, index){
     closeSidebar();
     const parentContainer = document.querySelector(".homepage");
+    const sidebarContainer = createSidebarContainer(Task, ToDoList, index);
+    parentContainer.appendChild(sidebarContainer);
+    parentContainer.classList.toggle('sidebar-active');
+}
+
+function createSidebarContainer(Task, ToDoList, index) {
     const sidebarContainer = document.createElement('div');
     sidebarContainer.classList.add('sidebar-display');
+    const taskHeaderContainer = createTaskHeaderContainer(Task, ToDoList, index);
+    const closeSidebarBtn = createButton('Close', closeSidebar);
+    const deleteTaskBtn = createButton('❌', () => {
+        closeSidebar();
+        ToDoList.removeTask(index);
+        refreshList(ToDoList);
+    });
+    sidebarContainer.append(taskHeaderContainer, closeSidebarBtn, deleteTaskBtn);
+    displaySteps(Task, sidebarContainer);
+    return sidebarContainer;
+}
+
+function createTaskHeaderContainer(Task, ToDoList, index){
     const taskHeaderContainer = document.createElement('div');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = index;
-    checkbox.value = Task.name;
-    const taskTitle = document.createElement('label');
-    taskTitle.htmlFor = index;
-    const markImportantTaskBtn = document.createElement('button');
-    markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
+    const checkbox = createCheckbox(Task.name, index, ToDoList.name);
+    const taskTitle = createLabel(Task.name, index);
+    const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
     markImportantTaskBtn.addEventListener('click', () => {
         markTaskAsImportant(Task);
         markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
         refreshList(ToDoList);
     });
-    const closeSidebarBtn = document.createElement('button');
-    closeSidebarBtn.textContent = "Close";
-    closeSidebarBtn.addEventListener('click', closeSidebar);
-    const deleteTaskBtn = document.createElement('button');
-    deleteTaskBtn.textContent = '❌';
-    deleteTaskBtn.addEventListener('click', () => {
-        closeSidebar();
-        ToDoList.removeTask(index);
-        refreshList(ToDoList);
-    });
-    taskTitle.textContent = Task.name;
-    taskHeaderContainer.appendChild(checkbox);
-    taskHeaderContainer.appendChild(taskTitle);
-    taskHeaderContainer.appendChild(markImportantTaskBtn);
-    sidebarContainer.appendChild(taskHeaderContainer);
-    displaySteps(Task, sidebarContainer);
-    sidebarContainer.appendChild(closeSidebarBtn);
-    sidebarContainer.appendChild(deleteTaskBtn);
-    parentContainer.appendChild(sidebarContainer);
-    parentContainer.classList.toggle('sidebar-active');
+    taskHeaderContainer.append(checkbox, taskTitle, markImportantTaskBtn);
+    return taskHeaderContainer;
+}
+
+function createButton(text, onClick){
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.addEventListener('click', onClick);
+    return button;
 }
 
 function refreshList(ToDoList){
-    let totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
-    let listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
+    const totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
+    const listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
     if (totalTasks != listTasks){
         displayAllTasks();
     } else {
@@ -141,11 +166,10 @@ function refreshList(ToDoList){
 function closeSidebar(){
     const parentContainer = document.querySelector('.homepage');
     const sidebarContainer = document.querySelector('.sidebar-display');
-    if (sidebarContainer === null){
-        return;
+    if (sidebarContainer){
+        parentContainer.removeChild(sidebarContainer);
+        parentContainer.classList.toggle('sidebar-active');
     }
-    parentContainer.removeChild(sidebarContainer);
-    parentContainer.classList.toggle('sidebar-active');
 }
 
 export { 

@@ -139,7 +139,7 @@ function displayToDoList(ToDoList, clear=true, title=true) {
         rightDiv.appendChild(header);
     }
 
-    for (let task of ToDoList.listOfTasks) {
+    for (let task of ToDoList.listOfTasks) { // Change to foreach to keep track of index
         displayTask(task, ToDoList);
     }
     addNewTaskForm(ToDoList);
@@ -160,11 +160,13 @@ function displayAllTasks(){
     const header = document.createElement('h2');
     header.textContent = "All tasks"
     tasksContainer.appendChild(header);
-    for (let list of existingLists){
-        for (let task of list.listOfTasks){
-            displayTask(task, list);
-        }
-    }
+    console.log(existingLists);
+    existingLists.forEach((list, i) => {
+        list.listOfTasks.forEach((task, j) => {
+            console.log(`${i} -> ${i * 10 + j}`);
+            displayTask(task, list, (i * 10) + j);
+        })
+    })
 }
 
 export {
