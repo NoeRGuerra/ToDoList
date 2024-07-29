@@ -35,6 +35,14 @@ function markTaskAsImportant(task){
     }
 }
 
+function markTaskAsComplete(task){
+    if (task.isComplete) {
+        task.markIncomplete();
+    } else {
+        task.markComplete();
+    }
+}
+
 function displaySteps(task, taskContainer){
     const stepsContainer = document.createElement('div');
     task.steps.forEach((step, index) => {
@@ -69,7 +77,7 @@ function displayTask(Task, ToDoList, index){
 
 function createTaskContainer(Task, ToDoList, index){
     const taskContainer = document.createElement('div');
-    const checkbox = createCheckbox(Task.name, index, ToDoList.name);
+    const checkbox = createCheckbox(Task, index, ToDoList);
     const label = createLabel(Task.name, index);
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
     label.addEventListener('click', (e) => {
@@ -80,12 +88,22 @@ function createTaskContainer(Task, ToDoList, index){
     return taskContainer;
 }
 
-function createCheckbox(taskName, index, listName){
+function createCheckbox(task, index, ToDoList){
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = index;
-    checkbox.value = taskName;
-    checkbox.setAttribute('data-list', listName);
+    checkbox.value = task.name;
+    checkbox.setAttribute('data-list', ToDoList.name);
+    if (task.isComplete){
+        checkbox.checked = true;
+    }
+    checkbox.addEventListener('change', () => {
+        markTaskAsComplete(task);
+        if (document.querySelector('.sidebar-display')){
+            openTaskSidebar(task, ToDoList, index);
+            refreshList(ToDoList);
+        }
+    })
     return checkbox;    
 }
 
@@ -136,7 +154,7 @@ function createSidebarContainer(Task, ToDoList, index) {
 
 function createSidebarHeaderContainer(Task, ToDoList, index){
     const sidebarHeaderContainer = document.createElement('div');
-    const checkbox = createCheckbox(Task.name, 'sidebar-task-complete', ToDoList.name);
+    const checkbox = createCheckbox(Task, 'sidebar-task-complete', ToDoList);
     const taskTitle = createLabel(Task.name, 'sidebar-task-complete');
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
     sidebarHeaderContainer.append(checkbox, taskTitle, markImportantTaskBtn);
