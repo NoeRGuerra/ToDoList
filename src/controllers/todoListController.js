@@ -9,6 +9,8 @@ let currentToDoList = null;
 
 function createDefaultList() {
     const todayList = new ToDoList('Today');
+    const task1 = new Task('Finish program');
+    todayList.addTask(task1);
     existingLists.push(todayList);
 }
 
@@ -139,9 +141,9 @@ function displayToDoList(ToDoList, clear=true, title=true) {
         rightDiv.appendChild(header);
     }
 
-    for (let task of ToDoList.listOfTasks) { // Change to foreach to keep track of index
-        displayTask(task, ToDoList);
-    }
+    ToDoList.listOfTasks.forEach((task, index) => {
+        displayTask(task, ToDoList, index);
+    })
     addNewTaskForm(ToDoList);
     setCurrentToDoList(ToDoList);
 }

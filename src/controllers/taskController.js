@@ -38,7 +38,7 @@ function markTaskAsImportant(task){
 function displaySteps(task, taskContainer){
     const stepsContainer = document.createElement('div');
     task.steps.forEach((step, index) => {
-        const stepElement = createStepElement(step, index, task.name);
+        const stepElement = createStepElement(step, `sidebar-step-${index}`, task.name);
         stepsContainer.appendChild(stepElement);
     });
     taskContainer.appendChild(stepsContainer);
@@ -104,6 +104,7 @@ function createMarkImportantButton(Task, ToDoList, index) {
         markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
         if (document.querySelector('.sidebar-display')){
             openTaskSidebar(Task, ToDoList, index);
+            refreshList(ToDoList);
         }
     });
     return markImportantTaskBtn;
@@ -120,30 +121,26 @@ function openTaskSidebar(Task, ToDoList, index){
 function createSidebarContainer(Task, ToDoList, index) {
     const sidebarContainer = document.createElement('div');
     sidebarContainer.classList.add('sidebar-display');
-    const taskHeaderContainer = createTaskHeaderContainer(Task, ToDoList, index);
+    const sidebarHeaderContainer = createSidebarHeaderContainer(Task, ToDoList, index);
     const closeSidebarBtn = createButton('Close', closeSidebar);
     const deleteTaskBtn = createButton('❌', () => {
         closeSidebar();
         ToDoList.removeTask(index);
         refreshList(ToDoList);
     });
-    sidebarContainer.append(taskHeaderContainer, closeSidebarBtn, deleteTaskBtn);
+    sidebarContainer.append(sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
+    sidebarContainer.append(closeSidebarBtn, deleteTaskBtn);
     return sidebarContainer;
 }
 
-function createTaskHeaderContainer(Task, ToDoList, index){
-    const taskHeaderContainer = document.createElement('div');
-    const checkbox = createCheckbox(Task.name, index, ToDoList.name);
-    const taskTitle = createLabel(Task.name, index);
+function createSidebarHeaderContainer(Task, ToDoList, index){
+    const sidebarHeaderContainer = document.createElement('div');
+    const checkbox = createCheckbox(Task.name, 'sidebar-task-complete', ToDoList.name);
+    const taskTitle = createLabel(Task.name, 'sidebar-task-complete');
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
-    markImportantTaskBtn.addEventListener('click', () => {
-        markTaskAsImportant(Task);
-        markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
-        refreshList(ToDoList);
-    });
-    taskHeaderContainer.append(checkbox, taskTitle, markImportantTaskBtn);
-    return taskHeaderContainer;
+    sidebarHeaderContainer.append(checkbox, taskTitle, markImportantTaskBtn);
+    return sidebarHeaderContainer;
 }
 
 function createButton(text, onClick){
