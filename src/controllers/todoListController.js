@@ -178,5 +178,6 @@ export {
     createDemoLists,
     populateListsContainer,
     displayAllTasks,
-    existingLists
+    existingLists,
+    currentToDoList
 };
