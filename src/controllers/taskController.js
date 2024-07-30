@@ -1,5 +1,8 @@
+import Step from "../models/Step";
 import Task from "../models/Task";
-import { displayToDoList, displayAllTasks } from './todoListController';
+import { displayToDoList, displayAllTasks, currentToDoList } from './todoListController';
+
+let currentTask = null;
 
 function addNewTaskForm(ToDoList) {
     const container = document.querySelector(".right");
@@ -13,6 +16,20 @@ function addNewTaskForm(ToDoList) {
         ToDoList.listOfTasks.push(newTask);
         displayToDoList(ToDoList);
     });
+}
+
+function addNewStepForm(Task, ToDoList, index) {
+    const newStepForm = createNewTaskForm();
+    const newStepInput = newStepForm.querySelector('input[type="text"]');
+    newStepInput.placeholder = "Next Step";
+    newStepForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newStepName = newStepInput.value;
+        const newStep = new Step(newStepName);
+        Task.addStep(newStep);
+        openTaskSidebar(currentTask, ToDoList, index);
+    });
+    return newStepForm;
 }
 
 function createNewTaskForm(){
@@ -41,6 +58,9 @@ function markTaskAsComplete(task){
     } else {
         task.markComplete();
     }
+    if (task instanceof Step){
+        currentTask.checkCompletion();
+    }
 }
 
 function displaySteps(task, taskContainer){
@@ -55,11 +75,7 @@ function displaySteps(task, taskContainer){
 function createStepElement(step, index, taskName){
     const icon = document.createElement('span');
     icon.textContent = '· ';
-    const stepCheckbox = document.createElement('input');
-    stepCheckbox.type = 'checkbox';
-    stepCheckbox.id = index;
-    stepCheckbox.value = step.name;
-    stepCheckbox.setAttribute('data-task', taskName);
+    const stepCheckbox = createCheckbox(step, index, currentToDoList);
     const stepLabel = document.createElement('label');
     stepLabel.htmlFor = index;
     stepLabel.textContent = step.name;
@@ -82,6 +98,7 @@ function createTaskContainer(Task, ToDoList, index){
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
     label.addEventListener('click', (e) => {
         e.preventDefault();
+        currentTask = Task;
         openTaskSidebar(Task, ToDoList, index);
     })
     taskContainer.append(checkbox, label, markImportantTaskBtn, document.createElement('br'));
@@ -100,7 +117,7 @@ function createCheckbox(task, index, ToDoList){
     checkbox.addEventListener('change', () => {
         markTaskAsComplete(task);
         if (document.querySelector('.sidebar-display')){
-            openTaskSidebar(task, ToDoList, index);
+            openTaskSidebar(currentTask, ToDoList, index);
             refreshList(ToDoList);
         }
     })
@@ -146,9 +163,10 @@ function createSidebarContainer(Task, ToDoList, index) {
         ToDoList.removeTask(index);
         refreshList(ToDoList);
     });
+    const newStepForm = addNewStepForm(Task, ToDoList, index);
     sidebarContainer.append(sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
-    sidebarContainer.append(closeSidebarBtn, deleteTaskBtn);
+    sidebarContainer.append(newStepForm, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
     return sidebarContainer;
 }
 
