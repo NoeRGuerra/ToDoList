@@ -65,23 +65,32 @@ function markTaskAsComplete(task){
 
 function displaySteps(task, taskContainer){
     const stepsContainer = document.createElement('div');
+    stepsContainer.classList.add('sidebar-steps');
     task.steps.forEach((step, index) => {
-        const stepElement = createStepElement(step, `sidebar-step-${index}`, task.name);
+        const stepElement = createStepElement(step, index, task.name);
         stepsContainer.appendChild(stepElement);
     });
     taskContainer.appendChild(stepsContainer);
 }
 
-function createStepElement(step, index, taskName){
+function createStepElement(step, index){
     const icon = document.createElement('span');
     icon.textContent = '· ';
-    const stepCheckbox = createCheckbox(step, index, currentToDoList);
+    const stepID = `sidebar-step-${index}`;
+    const stepCheckbox = createCheckbox(step, stepID, currentToDoList);
     const stepLabel = document.createElement('label');
-    stepLabel.htmlFor = index;
+    stepLabel.htmlFor = stepID;
     stepLabel.textContent = step.name;
     const br = document.createElement('br');
+    const deleteBtn = createButton('❌', () => {
+        const parentContainer = document.querySelector('.sidebar-steps');
+        const stepIndex = parseInt(stepElement.getAttribute('data-step-index'));
+        currentTask.removeStep(stepIndex);
+        parentContainer.removeChild(stepElement);
+    });
     const stepElement = document.createElement('div');
-    stepElement.append(icon, stepCheckbox, stepLabel, br);
+    stepElement.setAttribute('data-step-index', index);
+    stepElement.append(icon, stepCheckbox, stepLabel, deleteBtn, br);
     return stepElement;
 }
 
@@ -172,6 +181,7 @@ function createSidebarContainer(Task, ToDoList, index) {
 
 function createSidebarHeaderContainer(Task, ToDoList, index){
     const sidebarHeaderContainer = document.createElement('div');
+    sidebarHeaderContainer.classList.add('sidebar-header');
     const checkbox = createCheckbox(Task, 'sidebar-task-complete', ToDoList);
     const taskTitle = createLabel(Task.name, 'sidebar-task-complete');
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
