@@ -1,8 +1,7 @@
 import './views/style.css';
-import { addDefaultList, displayToDoList, createDemoLists, populateListsContainer, existingLists, addAllTasks } from './controllers/todoListController';
+import { displayToDoList, createDemoLists, populateListsContainer, existingLists, addTopLists } from './controllers/todoListController';
 
-addDefaultList();
-addAllTasks();
+addTopLists();
 createDemoLists();
 populateListsContainer();
 displayToDoList(existingLists[0]);

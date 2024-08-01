@@ -14,16 +14,23 @@ function createDefaultList() {
     existingLists.push(todayList);
 }
 
-function addDefaultList() {
+function addTopLists() {
     createDefaultList();
-    const defaultList = existingLists[0];
     const container = document.querySelector("#top-lists");
-    const listItem = document.createElement('button');
-    listItem.textContent = defaultList.name;
-    listItem.addEventListener('click', () => {
+    const defaultList = existingLists[0];
+    const defaultListBtn = document.createElement('button');
+    defaultListBtn.textContent = defaultList.name;
+    defaultListBtn.addEventListener('click', () => {
         displayToDoList(defaultList);
     });
-    container.appendChild(listItem);
+    const allTasksBtn = document.createElement('button');
+    allTasksBtn.textContent = "All tasks";
+    allTasksBtn.addEventListener('click', displayAllTasks);
+    
+    const importantTasksBtn = document.createElement('button');
+    importantTasksBtn.textContent = 'Important tasks';
+    importantTasksBtn.addEventListener('click', displayImportantTasks);
+    container.append(defaultListBtn, allTasksBtn, importantTasksBtn);
 }
 
 function createDemoLists() {
@@ -162,18 +169,30 @@ function displayAllTasks(){
     const header = document.createElement('h2');
     header.textContent = "All tasks"
     tasksContainer.appendChild(header);
-    console.log(existingLists);
     existingLists.forEach((list, i) => {
         list.listOfTasks.forEach((task, j) => {
-            console.log(`${i} -> ${i * 10 + j}`);
             displayTask(task, list, (i * 10) + j);
         })
     })
 }
 
+function displayImportantTasks(){
+    clearDisplayedToDoList();
+    const tasksContainer = document.querySelector('.right');
+    const header = document.createElement('h2');
+    header.textContent = "Important tasks";
+    tasksContainer.append(header);
+    existingLists.forEach((list, i) => {
+        list.listOfTasks.forEach((task, j) => {
+            if (task.isImportant) {
+                displayTask(task, list, (i * 10) + j);
+            }
+        })
+    })
+}
+
 export {
-    addDefaultList,
-    addAllTasks,
+    addTopLists,
     displayToDoList,
     createDemoLists,
     populateListsContainer,
