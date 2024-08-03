@@ -30,7 +30,7 @@ function addTopLists() {
     const importantTasksBtn = document.createElement('button');
     importantTasksBtn.textContent = 'Important tasks';
     importantTasksBtn.addEventListener('click', displayImportantTasks);
-    container.append(defaultListBtn, allTasksBtn, importantTasksBtn);
+    container.append(defaultListBtn, document.createElement('br'), allTasksBtn, document.createElement('br'), importantTasksBtn);
 }
 
 function createDemoLists() {
@@ -153,14 +153,6 @@ function displayToDoList(ToDoList, clear=true, title=true) {
     })
     addNewTaskForm(ToDoList);
     setCurrentToDoList(ToDoList);
-}
-
-function addAllTasks() {
-    const container = document.querySelector("#top-lists");
-    const listItem = document.createElement('button');
-    listItem.textContent = "All tasks";
-    listItem.addEventListener('click', displayAllTasks);
-    container.appendChild(listItem);
 }
 
 function displayAllTasks(){
