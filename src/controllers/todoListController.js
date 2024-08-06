@@ -7,6 +7,7 @@ import { saveToDoLists, loadToDoLists } from '../utils/storage';
 
 const existingLists = loadToDoLists();
 let currentToDoList = null;
+let currentIndex = null;
 
 function createDefaultList() {
     const todayList = new ToDoList('Today');
@@ -87,16 +88,19 @@ function createDemoLists() {
 
 function populateListsContainer() {
     const listsContainer = document.querySelector("#lists");
-    for (let list of existingLists.slice(1)) {
-        const listParagraph = document.createElement('button');
+    existingLists.slice(1).forEach((list, index) => {
+        const todoListContainer = document.createElement('div');
+        const listBtn = document.createElement('button');
         const br = document.createElement('br');
-        listParagraph.textContent = list.name;
-        listsContainer.appendChild(listParagraph);
-        listsContainer.appendChild(br);
-        listParagraph.addEventListener('click', () => {
+        listBtn.textContent = list.name;
+        listBtn.addEventListener('click', () => {
             displayToDoList(list);
+            currentIndex = index+1;
         });
-    }
+        todoListContainer.setAttribute('data-todolist-index', index+1);
+        todoListContainer.append(listBtn, br);
+        listsContainer.appendChild(todoListContainer);
+    })
     addNewListForm();
 }
 
@@ -147,16 +151,28 @@ function displayToDoList(ToDoList, clear=true, title=true) {
         clearDisplayedToDoList();
     const rightDiv = document.querySelector(".right");
     if (title){
-        const header = document.createElement('h2');
-        header.textContent = ToDoList.name;
-        rightDiv.appendChild(header);
+        const headerContainer = createHeaderElement(ToDoList.name);
+        rightDiv.append(headerContainer);
     }
-
     ToDoList.listOfTasks.forEach((task, index) => {
         displayTask(task, ToDoList, index);
     })
     addNewTaskForm(ToDoList);
     setCurrentToDoList(ToDoList);
+}
+
+function createHeaderElement(title){
+    const headerContainer = document.createElement('div');
+    headerContainer.id = "list-header";
+    const heading = document.createElement('h2');
+    heading.textContent = title;
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.addEventListener('click', () => {
+        removeToDoList();
+    });
+    headerContainer.append(heading, deleteBtn);
+    return headerContainer;
 }
 
 function displayAllTasks(){
@@ -185,6 +201,17 @@ function displayImportantTasks(){
             }
         })
     })
+}
+
+function removeToDoList(){
+    const listsContainer = document.querySelector('#lists');
+    const listElement = listsContainer.querySelector(`div[data-todolist-index="${currentIndex}"]`);
+    listsContainer.removeChild(listElement);
+    existingLists.splice(currentIndex, 1);
+    displayToDoList(existingLists[0]);
+    currentToDoList = existingLists[0];
+    currentIndex = 0;
+    saveToDoLists(existingLists);
 }
 
 export {
