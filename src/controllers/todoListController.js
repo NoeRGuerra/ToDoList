@@ -3,8 +3,9 @@ import { addNewTaskForm, displayTask } from './taskController';
 import ToDoList from '../models/ToDoList';
 import Task from '../models/Task';
 import Step from '../models/Step';
+import { saveToDoLists, loadToDoLists } from '../utils/storage';
 
-const existingLists = [];
+const existingLists = loadToDoLists();
 let currentToDoList = null;
 
 function createDefaultList() {
@@ -15,7 +16,9 @@ function createDefaultList() {
 }
 
 function addTopLists() {
-    createDefaultList();
+    if (existingLists.length === 0){
+        createDefaultList();
+    }
     const container = document.querySelector("#top-lists");
     const defaultList = existingLists[0];
     const defaultListBtn = document.createElement('button');
@@ -117,6 +120,7 @@ function addNewListForm() {
         existingLists.push(newList);
         clearAllLists();
         populateListsContainer();
+        saveToDoLists(existingLists);
     });
 }
 

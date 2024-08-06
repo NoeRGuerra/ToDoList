@@ -21,6 +21,17 @@ class Step {
     markIncomplete() {
         this.isComplete = false;
     }
+
+    /**
+     * Create a Step instance from a plain object.
+     * @param {Object} obj - The object to create a Step from.
+     * @returns {Step} - The created Step instance.
+     */
+    static fromObject(obj){
+        const step = new Step(obj.name);
+        step.isComplete = obj.isComplete;
+        return step;
+    }
 }
 
 export default Step;

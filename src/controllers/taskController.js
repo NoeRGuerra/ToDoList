@@ -1,6 +1,7 @@
 import Step from "../models/Step";
 import Task from "../models/Task";
-import { displayToDoList, displayAllTasks, currentToDoList } from './todoListController';
+import { displayToDoList, displayAllTasks, currentToDoList, existingLists } from './todoListController';
+import { saveToDoLists, loadToDoLists } from "../utils/storage";
 
 let currentTask = null;
 
@@ -14,11 +15,12 @@ function addNewTaskForm(ToDoList) {
         const newTaskName = newTaskForm.querySelector('input[type="text"]').value;
         const newTask = new Task(newTaskName);
         ToDoList.listOfTasks.push(newTask);
+        saveToDoLists(existingLists);
         displayToDoList(ToDoList);
     });
 }
 
-function addNewStepForm(Task, ToDoList, index) {
+function addNewStepForm(Task, ToDoList, index) {    
     const newStepForm = createNewTaskForm();
     const newStepInput = newStepForm.querySelector('input[type="text"]');
     newStepInput.placeholder = "Next Step";
@@ -26,7 +28,10 @@ function addNewStepForm(Task, ToDoList, index) {
         e.preventDefault();
         const newStepName = newStepInput.value;
         const newStep = new Step(newStepName);
+        console.log(Task);
+        console.log(existingLists);
         Task.addStep(newStep);
+        saveToDoLists(existingLists);
         openTaskSidebar(currentTask, ToDoList, index);
     });
     return newStepForm;
@@ -50,6 +55,7 @@ function markTaskAsImportant(task){
     } else {
         task.markImportant();
     }
+    saveToDoLists(existingLists);
 }
 
 function markTaskAsComplete(task){
@@ -61,6 +67,7 @@ function markTaskAsComplete(task){
     if (task instanceof Step){
         currentTask.checkCompletion();
     }
+    saveToDoLists(existingLists);
 }
 
 function displaySteps(task, taskContainer){
@@ -87,6 +94,7 @@ function createStepElement(step, index){
         const stepIndex = parseInt(stepElement.getAttribute('data-step-index'));
         currentTask.removeStep(stepIndex);
         parentContainer.removeChild(stepElement);
+        saveToDoLists(existingLists);
     });
     const stepElement = document.createElement('div');
     stepElement.setAttribute('data-step-index', index);
@@ -170,6 +178,7 @@ function createSidebarContainer(Task, ToDoList, index) {
     const deleteTaskBtn = createButton('❌', () => {
         closeSidebar();
         ToDoList.removeTask(index);
+        saveToDoLists(existingLists);
         refreshList(ToDoList);
     });
     const newStepForm = addNewStepForm(Task, ToDoList, index);

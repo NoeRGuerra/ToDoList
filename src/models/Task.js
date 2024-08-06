@@ -80,6 +80,22 @@ class Task {
     setDescription(description) {
         this.description = description;
     }
+
+    /**
+     * Create a Task instance from a plain object.
+     * @param {Object} obj - The object to create a Task from.
+     * @returns {Task} - The created Task instance.
+     */
+    static fromObject(obj){
+        const task = new Task(obj.name, obj.dueDate, obj.isImportant);
+        task.description = obj.description;
+        task.isComplete = obj.isComplete;
+        obj.steps.forEach(stepObj => {
+            const step = Step.fromObject(stepObj);
+            task.addStep(step);
+        });
+        return task;
+    }
 }
 
 export default Task;

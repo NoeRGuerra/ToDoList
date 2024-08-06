@@ -32,6 +32,20 @@ class ToDoList {
         }
         this.listOfTasks.splice(index, 1);    
     }
+
+    /**
+     * Create a ToDoList instance from a plain object.
+     * @param {Object} obj - The object to create a ToDoList from.
+     * @returns {ToDoList} - The created ToDoList instance.
+     */
+    static fromObject(obj){
+        const toDoList = new ToDoList(obj.name);
+        obj.listOfTasks.forEach(taskObj => {
+            const task = Task.fromObject(taskObj);
+            toDoList.addTask(task);
+        });
+        return toDoList;
+    }
 }
 
 export default ToDoList;
