@@ -22,19 +22,27 @@ function addTopLists() {
     }
     const container = document.querySelector("#top-lists");
     const defaultList = existingLists[0];
+    const defaultListContainer = document.createElement('div');
+    defaultListContainer.setAttribute('data-todolist-index', 0);
     const defaultListBtn = document.createElement('button');
     defaultListBtn.textContent = defaultList.name;
     defaultListBtn.addEventListener('click', () => {
-        displayToDoList(defaultList);
+        showDefaultList();
     });
+    defaultListContainer.append(defaultListBtn, document.createElement('br'));
+
+    const allTasksContainer = document.createElement('div');
     const allTasksBtn = document.createElement('button');
     allTasksBtn.textContent = "All tasks";
     allTasksBtn.addEventListener('click', displayAllTasks);
+    allTasksContainer.append(allTasksBtn, document.createElement('br'));
     
+    const importantTasksContainer = document.createElement('div');
     const importantTasksBtn = document.createElement('button');
     importantTasksBtn.textContent = 'Important tasks';
     importantTasksBtn.addEventListener('click', displayImportantTasks);
-    container.append(defaultListBtn, document.createElement('br'), allTasksBtn, document.createElement('br'), importantTasksBtn);
+    importantTasksContainer.append(importantTasksBtn, document.createElement('br'));
+    container.append(defaultListContainer, allTasksContainer, importantTasksContainer);
 }
 
 function createDemoLists() {
@@ -94,8 +102,8 @@ function populateListsContainer() {
         const br = document.createElement('br');
         listBtn.textContent = list.name;
         listBtn.addEventListener('click', () => {
-            displayToDoList(list);
             currentIndex = index+1;
+            displayToDoList(list);
         });
         todoListContainer.setAttribute('data-todolist-index', index+1);
         todoListContainer.append(listBtn, br);
@@ -166,6 +174,10 @@ function createHeaderElement(title){
     headerContainer.id = "list-header";
     const heading = document.createElement('h2');
     heading.textContent = title;
+    if (currentIndex === 0 || !currentIndex){
+        headerContainer.appendChild(heading);
+        return headerContainer;
+    }
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = '🗑️';
     deleteBtn.addEventListener('click', () => {
@@ -208,10 +220,14 @@ function removeToDoList(){
     const listElement = listsContainer.querySelector(`div[data-todolist-index="${currentIndex}"]`);
     listsContainer.removeChild(listElement);
     existingLists.splice(currentIndex, 1);
-    displayToDoList(existingLists[0]);
-    currentToDoList = existingLists[0];
-    currentIndex = 0;
+    showDefaultList();
     saveToDoLists(existingLists);
+}
+
+function showDefaultList(){
+    currentIndex = 0;
+    currentToDoList = existingLists[0];
+    displayToDoList(existingLists[0]);
 }
 
 export {
