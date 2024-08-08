@@ -181,10 +181,20 @@ function createSidebarContainer(Task, ToDoList, index) {
         saveToDoLists(existingLists);
         refreshList(ToDoList);
     });
+    const descriptionBox = document.createElement('textarea');
+    if (Task.description == ''){
+        descriptionBox.placeholder = "Add description...";
+    } else {
+        descriptionBox.value = Task.description;
+    }
+    descriptionBox.addEventListener('focusout', () => {
+        Task.setDescription(descriptionBox.value);
+        saveToDoLists(existingLists);
+    });
     const newStepForm = addNewStepForm(Task, ToDoList, index);
     sidebarContainer.append(sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
-    sidebarContainer.append(newStepForm, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
+    sidebarContainer.append(newStepForm, document.createElement('br'), descriptionBox, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
     return sidebarContainer;
 }
 
