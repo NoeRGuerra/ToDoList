@@ -181,6 +181,15 @@ function createSidebarContainer(Task, ToDoList, index) {
         saveToDoLists(existingLists);
         refreshList(ToDoList);
     });
+    const descriptionBox = createDescriptionBox(Task);
+    const newStepForm = addNewStepForm(Task, ToDoList, index);
+    sidebarContainer.append(sidebarHeaderContainer);
+    displaySteps(Task, sidebarContainer);
+    sidebarContainer.append(newStepForm, document.createElement('br'), descriptionBox, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
+    return sidebarContainer;
+}
+
+function createDescriptionBox(Task){
     const descriptionBox = document.createElement('textarea');
     if (Task.description == ''){
         descriptionBox.placeholder = "Add description...";
@@ -191,11 +200,7 @@ function createSidebarContainer(Task, ToDoList, index) {
         Task.setDescription(descriptionBox.value);
         saveToDoLists(existingLists);
     });
-    const newStepForm = addNewStepForm(Task, ToDoList, index);
-    sidebarContainer.append(sidebarHeaderContainer);
-    displaySteps(Task, sidebarContainer);
-    sidebarContainer.append(newStepForm, document.createElement('br'), descriptionBox, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
-    return sidebarContainer;
+    return descriptionBox;
 }
 
 function createSidebarHeaderContainer(Task, ToDoList, index){
