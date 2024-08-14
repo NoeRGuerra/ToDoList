@@ -1,5 +1,5 @@
 import '../views/style.css';
-import { addNewTaskForm, displayTask } from './taskController';
+import { addNewTaskForm, closeSidebar, displayTask } from './taskController';
 import ToDoList from '../models/ToDoList';
 import Task from '../models/Task';
 import Step from '../models/Step';
@@ -155,6 +155,7 @@ function getCurrentToDoList() {
 }
 
 function displayToDoList(ToDoList, clear=true, title=true) {
+    closeSidebar();
     if (clear)
         clearDisplayedToDoList();
     const rightDiv = document.querySelector(".right");
@@ -188,6 +189,7 @@ function createHeaderElement(title){
 }
 
 function displayAllTasks(){
+    closeSidebar();
     clearDisplayedToDoList();
     const tasksContainer = document.querySelector('.right');
     const header = document.createElement('h2');
@@ -201,6 +203,7 @@ function displayAllTasks(){
 }
 
 function displayImportantTasks(){
+    closeSidebar();
     clearDisplayedToDoList();
     const tasksContainer = document.querySelector('.right');
     const header = document.createElement('h2');

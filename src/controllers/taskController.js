@@ -1,7 +1,8 @@
 import Step from "../models/Step";
 import Task from "../models/Task";
 import { displayToDoList, displayAllTasks, currentToDoList, existingLists } from './todoListController';
-import { saveToDoLists, loadToDoLists } from "../utils/storage";
+import { saveToDoLists } from "../utils/storage";
+import { format } from "date-fns";
 
 let currentTask = null;
 
@@ -185,8 +186,52 @@ function createSidebarContainer(Task, ToDoList, index) {
     const newStepForm = addNewStepForm(Task, ToDoList, index);
     sidebarContainer.append(sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
-    sidebarContainer.append(newStepForm, document.createElement('br'), descriptionBox, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
+    const datePickerBtn = createDueDateBtn(Task, sidebarContainer);
+    datePickerBtn.id = "dueDateBtn";
+    sidebarContainer.append(newStepForm, document.createElement('br'), datePickerBtn, document.createElement('br'), 
+                            descriptionBox, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
     return sidebarContainer;
+}
+
+function createDueDateBtn(Task, sidebarContainer){
+    const existingDatePicker = sidebarContainer.querySelector('input[type=date]');
+    if (existingDatePicker){
+        sidebarContainer.removeChild(existingDatePicker);
+    }
+    const btn = createButton('Add due date', () => {
+        sidebarContainer.removeChild(btn);
+        const datePicker =  createDatePicker(Task, sidebarContainer);
+        const previousLinebreak = sidebarContainer.querySelector('br:nth-of-type(2)');
+        sidebarContainer?.insertBefore(datePicker, previousLinebreak);
+        datePicker.focus();
+        datePicker.showPicker();
+    });
+    return btn;
+}
+
+function createDatePicker(Task, sidebarContainer){
+    const datePicker = document.createElement('input');
+    datePicker.type = 'date';
+    datePicker.addEventListener('click', datePicker.showPicker);
+    datePicker.addEventListener('focusout', () => {
+        try{
+            const [year, month, day] = datePicker.value.split('-').map(Number);
+            const localDate = new Date(year, month-1, day);
+            Task.setDueDate(localDate);
+            const dueDate = format(Task.dueDate, 'yyyy-MM-dd');
+            console.log(dueDate);
+            console.log(typeof dueDate);
+        } catch (RangeError){
+            if (!datePicker.value){
+                const dueDateBtn = createDueDateBtn(Task, sidebarContainer);
+                dueDateBtn.id = "dueDateBtn";
+                const previousLinebreak = sidebarContainer.querySelector('br:nth-of-type(2)');
+                sidebarContainer.insertBefore(dueDateBtn, previousLinebreak);
+            }
+            console.log("Invalid date");
+        }
+    })
+    return datePicker;
 }
 
 function createDescriptionBox(Task){
@@ -243,5 +288,6 @@ export {
     addNewTaskForm,
     markTaskAsImportant,
     displaySteps,
-    displayTask
+    displayTask,
+    closeSidebar
 };
