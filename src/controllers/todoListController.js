@@ -1,5 +1,5 @@
 import '../views/style.css';
-import { addNewTaskForm, closeSidebar, displayTask } from './taskController';
+import { addNewTaskForm, closeSidebar, displayTask, createButton } from './taskController';
 import ToDoList from '../models/ToDoList';
 import Task from '../models/Task';
 import Step from '../models/Step';
@@ -182,7 +182,7 @@ function createHeaderElement(title){
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = '🗑️';
     deleteBtn.addEventListener('click', () => {
-        removeToDoList();
+        confirmAction("Are you sure you want to delete this list?", removeToDoList);
     });
     headerContainer.append(heading, deleteBtn);
     return headerContainer;
@@ -231,6 +231,36 @@ function showDefaultList(){
     currentIndex = 0;
     currentToDoList = existingLists[0];
     displayToDoList(existingLists[0]);
+}
+
+function confirmAction(text, onClick){
+    console.log("Clicked");
+    const listContainer = document.querySelector('.homepage');
+    const overlayContainer = document.createElement('div');
+    overlayContainer.className = 'overlay';
+    const warningContainer = document.createElement('div');
+    warningContainer.className = 'popup';
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    const okBtn = createButton('Continue', () => {
+        onClick();
+        removePopup();
+    }); 
+    const cancelBtn = createButton('Cancel', () => {
+        removePopup();
+    });
+    console.log("Clicked1");
+    warningContainer.append(paragraph, document.createElement('br'), okBtn, cancelBtn);
+    overlayContainer.append(warningContainer);
+    listContainer.append(overlayContainer);
+}
+
+function removePopup(){
+    const popup = document.querySelector('.popup');
+    const overlay = document.querySelector('.overlay');
+    const container = document.querySelector('.homepage');
+    overlay.removeChild(popup)
+    container.removeChild(overlay);
 }
 
 export {

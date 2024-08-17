@@ -289,5 +289,6 @@ export {
     markTaskAsImportant,
     displaySteps,
     displayTask,
-    closeSidebar
+    closeSidebar,
+    createButton
 };
