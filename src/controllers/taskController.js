@@ -23,6 +23,7 @@ function addNewTaskForm(ToDoList) {
 
 function addNewStepForm(Task, ToDoList, index) {    
     const newStepForm = createNewTaskForm();
+    newStepForm.className = "new-step-form";
     const newStepInput = newStepForm.querySelector('input[type="text"]');
     newStepInput.placeholder = "Next Step";
     newStepForm.addEventListener('submit', (e) => {
@@ -40,6 +41,7 @@ function addNewStepForm(Task, ToDoList, index) {
 
 function createNewTaskForm(){
     const newTaskForm = document.createElement('form');
+    newTaskForm.className = "new-task-form";
     const newTaskInput = document.createElement('input');
     newTaskInput.type = 'text';
     newTaskInput.placeholder = "New Task";
@@ -106,6 +108,7 @@ function createStepElement(step, index){
 function displayTask(Task, ToDoList, index){
     const listContainer = document.querySelector(".right");
     const taskContainer = createTaskContainer(Task, ToDoList, index);
+    taskContainer.className = "task-item";
     listContainer.appendChild(taskContainer);
 }
 
@@ -117,7 +120,11 @@ function createTaskContainer(Task, ToDoList, index){
     label.addEventListener('click', (e) => {
         e.preventDefault();
         currentTask = Task;
+        if (document.querySelector('.sidebar-display')){
+            closeSidebar();
+        } else {
         openTaskSidebar(Task, ToDoList, index);
+        }
     })
     taskContainer.append(checkbox, label, markImportantTaskBtn, document.createElement('br'));
     return taskContainer;
