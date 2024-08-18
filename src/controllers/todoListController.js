@@ -29,19 +29,19 @@ function addTopLists() {
     defaultListBtn.addEventListener('click', () => {
         showDefaultList();
     });
-    defaultListContainer.append(defaultListBtn, document.createElement('br'));
+    defaultListContainer.append(defaultListBtn);
 
     const allTasksContainer = document.createElement('div');
     const allTasksBtn = document.createElement('button');
     allTasksBtn.textContent = "All tasks";
     allTasksBtn.addEventListener('click', displayAllTasks);
-    allTasksContainer.append(allTasksBtn, document.createElement('br'));
+    allTasksContainer.append(allTasksBtn);
     
     const importantTasksContainer = document.createElement('div');
     const importantTasksBtn = document.createElement('button');
     importantTasksBtn.textContent = 'Important tasks';
     importantTasksBtn.addEventListener('click', displayImportantTasks);
-    importantTasksContainer.append(importantTasksBtn, document.createElement('br'));
+    importantTasksContainer.append(importantTasksBtn);
     container.append(defaultListContainer, allTasksContainer, importantTasksContainer);
 }
 
@@ -99,14 +99,13 @@ function populateListsContainer() {
     existingLists.slice(1).forEach((list, index) => {
         const todoListContainer = document.createElement('div');
         const listBtn = document.createElement('button');
-        const br = document.createElement('br');
         listBtn.textContent = list.name;
         listBtn.addEventListener('click', () => {
             currentIndex = index+1;
             displayToDoList(list);
         });
         todoListContainer.setAttribute('data-todolist-index', index+1);
-        todoListContainer.append(listBtn, br);
+        todoListContainer.append(listBtn);
         listsContainer.appendChild(todoListContainer);
     })
     addNewListForm();
@@ -115,6 +114,7 @@ function populateListsContainer() {
 function addNewListForm() {
     const container = document.querySelector("#lists");
     const newListForm = document.createElement('form');
+    newListForm.className = "new-list-form";
     const newListInput = document.createElement('input');
     newListInput.type = 'text';
     newListInput.placeholder = "New List";
@@ -154,20 +154,21 @@ function getCurrentToDoList() {
     return currentToDoList;
 }
 
-function displayToDoList(ToDoList, clear=true, title=true) {
-    closeSidebar();
-    if (clear)
-        clearDisplayedToDoList();
-    const rightDiv = document.querySelector(".right");
-    if (title){
-        const headerContainer = createHeaderElement(ToDoList.name);
-        rightDiv.append(headerContainer);
+function displayToDoList(ToDoList, disableNewTaskForm=false) {
+    if (currentToDoList !== ToDoList){
+        closeSidebar();
     }
+    clearDisplayedToDoList();
+    setCurrentToDoList(ToDoList);
+    const rightDiv = document.querySelector(".right");
+    const headerContainer = createHeaderElement(ToDoList.name);
+    rightDiv.append(headerContainer);
     ToDoList.listOfTasks.forEach((task, index) => {
         displayTask(task, ToDoList, index);
     })
-    addNewTaskForm(ToDoList);
-    setCurrentToDoList(ToDoList);
+    if (!disableNewTaskForm){
+        addNewTaskForm(ToDoList);
+    }
 }
 
 function createHeaderElement(title){
@@ -175,6 +176,7 @@ function createHeaderElement(title){
     headerContainer.id = "list-header";
     const heading = document.createElement('h2');
     heading.textContent = title;
+    heading.className = "list-name";
     if (currentIndex === 0 || !currentIndex){
         headerContainer.appendChild(heading);
         return headerContainer;
@@ -191,31 +193,27 @@ function createHeaderElement(title){
 function displayAllTasks(){
     closeSidebar();
     clearDisplayedToDoList();
-    const tasksContainer = document.querySelector('.right');
-    const header = document.createElement('h2');
-    header.textContent = "All tasks"
-    tasksContainer.appendChild(header);
-    existingLists.forEach((list, i) => {
-        list.listOfTasks.forEach((task, j) => {
-            displayTask(task, list, (i * 10) + j);
-        })
-    })
+    const allTasks = new ToDoList("All tasks");
+    existingLists.forEach((list) => {
+        list.listOfTasks.forEach((task) => {
+            allTasks.addTask(task)
+        });
+    });
+    displayToDoList(allTasks, true);
 }
 
 function displayImportantTasks(){
     closeSidebar();
     clearDisplayedToDoList();
-    const tasksContainer = document.querySelector('.right');
-    const header = document.createElement('h2');
-    header.textContent = "Important tasks";
-    tasksContainer.append(header);
-    existingLists.forEach((list, i) => {
-        list.listOfTasks.forEach((task, j) => {
+    const importantTasks = new ToDoList("Important tasks")
+    existingLists.forEach((list) => {
+        list.listOfTasks.forEach((task) => {
             if (task.isImportant) {
-                displayTask(task, list, (i * 10) + j);
+                importantTasks.addTask(task);
             }
-        })
-    })
+        });
+    });
+    displayToDoList(importantTasks, true);
 }
 
 function removeToDoList(){
@@ -229,12 +227,10 @@ function removeToDoList(){
 
 function showDefaultList(){
     currentIndex = 0;
-    currentToDoList = existingLists[0];
     displayToDoList(existingLists[0]);
 }
 
 function confirmAction(text, onClick){
-    console.log("Clicked");
     const listContainer = document.querySelector('.homepage');
     const overlayContainer = document.createElement('div');
     overlayContainer.className = 'overlay';
@@ -249,7 +245,6 @@ function confirmAction(text, onClick){
     const cancelBtn = createButton('Cancel', () => {
         removePopup();
     });
-    console.log("Clicked1");
     warningContainer.append(paragraph, document.createElement('br'), okBtn, cancelBtn);
     overlayContainer.append(warningContainer);
     listContainer.append(overlayContainer);
