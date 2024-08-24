@@ -4,6 +4,11 @@ import ToDoList from '../models/ToDoList';
 import Task from '../models/Task';
 import Step from '../models/Step';
 import { saveToDoLists, loadToDoLists } from '../utils/storage';
+import houseIcon from "../views/icons/house-solid.svg";
+import allBorderIcon from "../views/icons/border-all-solid.svg";
+import barsIcon from "../views/icons/bars-solid.svg";
+import starIcon from "../views/icons/star-solid-white.svg";
+import trashIcon from "../views/icons/trash-can-regular.svg";
 
 const existingLists = loadToDoLists();
 let currentToDoList = null;
@@ -24,23 +29,27 @@ function addTopLists() {
     const defaultList = existingLists[0];
     const defaultListContainer = document.createElement('div');
     defaultListContainer.setAttribute('data-todolist-index', 0);
-    const defaultListBtn = document.createElement('button');
-    defaultListBtn.textContent = defaultList.name;
-    defaultListBtn.addEventListener('click', () => {
-        showDefaultList();
-    });
+    const defaultListBtn = createButton(defaultList.name, showDefaultList);
+    const defaultListIcon = document.createElement('img');
+    defaultListIcon.src = houseIcon;
+    defaultListIcon.className = "icon";
+    defaultListBtn.prepend(defaultListIcon);
     defaultListContainer.append(defaultListBtn);
 
     const allTasksContainer = document.createElement('div');
-    const allTasksBtn = document.createElement('button');
-    allTasksBtn.textContent = "All tasks";
-    allTasksBtn.addEventListener('click', displayAllTasks);
+    const allTasksBtn = createButton("All tasks", displayAllTasks);
+    const allTasksIcon = document.createElement('img');
+    allTasksIcon.src = allBorderIcon;
+    allTasksIcon.className = "icon";
+    allTasksBtn.prepend(allTasksIcon);
     allTasksContainer.append(allTasksBtn);
     
     const importantTasksContainer = document.createElement('div');
-    const importantTasksBtn = document.createElement('button');
-    importantTasksBtn.textContent = 'Important tasks';
-    importantTasksBtn.addEventListener('click', displayImportantTasks);
+    const importantTasksBtn = createButton("Important tasks", displayImportantTasks);
+    const importantTasksIcon = document.createElement('img');
+    importantTasksIcon.src = starIcon;
+    importantTasksIcon.className = "icon";
+    importantTasksBtn.prepend(importantTasksIcon);
     importantTasksContainer.append(importantTasksBtn);
     container.append(defaultListContainer, allTasksContainer, importantTasksContainer);
 }
@@ -98,12 +107,14 @@ function populateListsContainer() {
     const listsContainer = document.querySelector("#lists");
     existingLists.slice(1).forEach((list, index) => {
         const todoListContainer = document.createElement('div');
-        const listBtn = document.createElement('button');
-        listBtn.textContent = list.name;
-        listBtn.addEventListener('click', () => {
+        const listBtn = createButton(list.name, () => {
             currentIndex = index+1;
             displayToDoList(list);
         });
+        const listIcon = document.createElement('img');
+        listIcon.src = barsIcon;
+        listIcon.className = "icon";
+        listBtn.prepend(listIcon);
         todoListContainer.setAttribute('data-todolist-index', index+1);
         todoListContainer.append(listBtn);
         listsContainer.appendChild(todoListContainer);
@@ -181,11 +192,10 @@ function createHeaderElement(title){
         headerContainer.appendChild(heading);
         return headerContainer;
     }
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = '🗑️';
-    deleteBtn.addEventListener('click', () => {
+    const deleteBtn = createButton('', () => {
         confirmAction("Are you sure you want to delete this list?", removeToDoList);
     });
+    deleteBtn.classList.add('delete');
     headerContainer.append(heading, deleteBtn);
     return headerContainer;
 }
@@ -265,5 +275,6 @@ export {
     populateListsContainer,
     displayAllTasks,
     existingLists,
-    currentToDoList
+    currentToDoList,
+    confirmAction
 };

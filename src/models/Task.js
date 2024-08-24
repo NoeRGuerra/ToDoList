@@ -32,8 +32,11 @@ class Task {
      * Remove a step from the task.
      * @param {string} stepName - The name of the step to remove
      */
-    removeStep(stepName) {
-        this.steps = this.steps.filter(step => step.name !== stepName);
+    removeStep(index) {
+        if (index < 0 || index>=this.steps.length) {
+            throw new Error('Invalid Index: Index out of range');
+        }
+        this.steps.splice(index, 1);
     }
 
     /**

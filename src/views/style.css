@@ -7,6 +7,7 @@
 body {
     background-color: #252423;
     height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 li {
@@ -24,18 +25,33 @@ label, h2{
     color: white;
 }
 
-/* .left {
-    border-bottom: 1px solid #686868;
-} */
+#list-header {
+    display: flex;
+    justify-content: space-between;
+}
 
-.left button {
-    width: 100%;
-    text-align: left;
+button {
     padding: 10px;
     background-color: #212121;
     color: white;
     border:none;
-    font-size: 16px;
+    font-size: 16px
+}
+
+.left {
+    min-width: 20ch;
+}
+
+.left button, .sidebar-actions button {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+}
+
+.left button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 form{
@@ -62,11 +78,11 @@ input[type="text"] {
     padding: 10px 0;
 }
 
-input[type="text"]::placeholder{
+input[type="text"]::placeholder, textarea::placeholder{
     color: rgb(214, 214, 214);
 }
 
-.left button:hover, .active{
+button:hover, .active{
     background-color: #323232;
 }
 
@@ -84,7 +100,7 @@ input[type="text"]::placeholder{
     background: url('images/background.jpg');
     background-size: cover;
     padding: 25px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-width: 20ch;
 }
 
 .list-name {
@@ -92,7 +108,7 @@ input[type="text"]::placeholder{
     margin-bottom: 10px;
 }
 
-.task-item {
+.task-item, .sidebar-header {
     display: flex;
     background-color: #212121;
     margin-bottom: 2px;
@@ -105,9 +121,99 @@ input[type="text"]::placeholder{
     background-color: #323232;
 }
 
-.task-item label {
+.task-item label, .sidebar-header label {
     flex: 1;
     padding: 10px 0;
+}
+
+.task-item label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.task-item {
+    height: 40px;
+}
+
+.sidebar-display {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 5px;
+    min-width: 20ch;
+}
+
+.sidebar-display>button{
+    align-self: flex-end;
+    background-color: #252423;
+}
+
+.sidebar-display>button:hover{
+    align-self: flex-end;
+    background-color: #323232;
+}
+
+.sidebar-actions button:last-child {
+    margin-top: auto;
+}
+
+.icon {
+    width: 15px;
+    height: auto;
+}
+
+textarea {
+    background-color: #323232;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    height: 50%;
+    font-size: 14px;
+}
+
+.sidebar-steps {
+    padding-left: 15px;
+}
+
+.sidebar-steps button {
+    padding: 2px;
+}
+
+.sidebar-steps div{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sidebar-steps div>label {
+    flex: 1;
+}
+
+.important {
+    background-image: url("icons/star-solid.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: none;
+}
+
+.not-important {
+    background-image: url("icons/star-regular.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: none;
+}
+
+.delete {
+    background-image: url("icons/trash-can-regular.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: none;
+    margin: 9px;
+}
+
+.complete{
+    text-decoration: line-through;
+    color: rgb(170, 170, 170);
 }
 
 .overlay {

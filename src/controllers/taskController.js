@@ -1,10 +1,13 @@
 import Step from "../models/Step";
 import Task from "../models/Task";
-import { displayToDoList, displayAllTasks, currentToDoList, existingLists } from './todoListController';
+import { displayToDoList, displayAllTasks, currentToDoList, existingLists, confirmAction } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
 import { format } from "date-fns";
+import starSolid from "../views/icons/star-solid.svg";
+import starRegular from "../views/icons/star-regular.svg";
 
 let currentTask = null;
+let currentTaskIndex = null;
 
 function addNewTaskForm(ToDoList) {
     const container = document.querySelector(".right");
@@ -14,6 +17,9 @@ function addNewTaskForm(ToDoList) {
     newTaskForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const newTaskName = newTaskForm.querySelector('input[type="text"]').value;
+        if (newTaskName === ''){
+            return;
+        }
         const newTask = new Task(newTaskName);
         ToDoList.listOfTasks.push(newTask);
         saveToDoLists(existingLists);
@@ -29,9 +35,10 @@ function addNewStepForm(Task, ToDoList, index) {
     newStepForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const newStepName = newStepInput.value;
+        if (newStepName === ''){
+            return;
+        }
         const newStep = new Step(newStepName);
-        console.log(Task);
-        console.log(existingLists);
         Task.addStep(newStep);
         saveToDoLists(existingLists);
         openTaskSidebar(currentTask, ToDoList, index);
@@ -84,24 +91,20 @@ function displaySteps(task, taskContainer){
 }
 
 function createStepElement(step, index){
-    const icon = document.createElement('span');
-    icon.textContent = '· ';
     const stepID = `sidebar-step-${index}`;
     const stepCheckbox = createCheckbox(step, stepID, currentToDoList);
     const stepLabel = document.createElement('label');
     stepLabel.htmlFor = stepID;
     stepLabel.textContent = step.name;
-    const br = document.createElement('br');
     const deleteBtn = createButton('❌', () => {
-        const parentContainer = document.querySelector('.sidebar-steps');
         const stepIndex = parseInt(stepElement.getAttribute('data-step-index'));
         currentTask.removeStep(stepIndex);
-        parentContainer.removeChild(stepElement);
+        openTaskSidebar(currentTask, currentToDoList, currentTaskIndex);
         saveToDoLists(existingLists);
     });
     const stepElement = document.createElement('div');
     stepElement.setAttribute('data-step-index', index);
-    stepElement.append(icon, stepCheckbox, stepLabel, deleteBtn, br);
+    stepElement.append(stepCheckbox, stepLabel, deleteBtn);
     return stepElement;
 }
 
@@ -116,17 +119,24 @@ function createTaskContainer(Task, ToDoList, index){
     const taskContainer = document.createElement('div');
     const checkbox = createCheckbox(Task, index, ToDoList);
     const label = createLabel(Task.name, index);
+    if (Task.isComplete){
+        label.className = "complete";
+    }
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
     label.addEventListener('click', (e) => {
         e.preventDefault();
-        currentTask = Task;
-        if (document.querySelector('.sidebar-display')){
+        if (document.querySelector('.sidebar-display') && currentTaskIndex === index){
             closeSidebar();
         } else {
+        currentTask = Task;
+        currentTaskIndex = index;
         openTaskSidebar(Task, ToDoList, index);
         }
     })
-    taskContainer.append(checkbox, label, markImportantTaskBtn, document.createElement('br'));
+    checkbox.addEventListener('change', () => {
+        label.classList.toggle('complete');
+    })
+    taskContainer.append(checkbox, label, markImportantTaskBtn);
     return taskContainer;
 }
 
@@ -158,14 +168,18 @@ function createLabel(taskName, index){
 
 function createMarkImportantButton(Task, ToDoList, index) {
     const markImportantTaskBtn = document.createElement('button');
-    markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
+    markImportantTaskBtn.classList.add('icon');
+    if (Task.isImportant){
+        markImportantTaskBtn.classList.add('important');
+    } else {
+        markImportantTaskBtn.classList.add('not-important');
+    }
     markImportantTaskBtn.addEventListener('click', () => {
         markTaskAsImportant(Task);
-        markImportantTaskBtn.textContent = Task.isImportant ? '🟨' : '🔳';
         if (document.querySelector('.sidebar-display')){
             openTaskSidebar(Task, ToDoList, index);
-            refreshList(ToDoList);
         }
+        refreshList(ToDoList);
     });
     return markImportantTaskBtn;
 }
@@ -182,21 +196,20 @@ function createSidebarContainer(Task, ToDoList, index) {
     const sidebarContainer = document.createElement('div');
     sidebarContainer.classList.add('sidebar-display');
     const sidebarHeaderContainer = createSidebarHeaderContainer(Task, ToDoList, index);
-    const closeSidebarBtn = createButton('Close', closeSidebar);
-    const deleteTaskBtn = createButton('❌', () => {
-        closeSidebar();
-        ToDoList.removeTask(index);
-        saveToDoLists(existingLists);
-        refreshList(ToDoList);
+    const sidebarActionsContainer = document.createElement('div');
+    sidebarActionsContainer.className = "sidebar-actions";
+    const closeSidebarBtn = createButton('x', closeSidebar);
+    const deleteTaskBtn = createButton('Delete task', () => {
+        confirmAction("Are you sure you want to delete this task?", deleteTask);
     });
     const descriptionBox = createDescriptionBox(Task);
     const newStepForm = addNewStepForm(Task, ToDoList, index);
-    sidebarContainer.append(sidebarHeaderContainer);
+    sidebarContainer.append(closeSidebarBtn, sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
     const datePickerBtn = createDueDateBtn(Task, sidebarContainer);
     datePickerBtn.id = "dueDateBtn";
-    sidebarContainer.append(newStepForm, document.createElement('br'), datePickerBtn, document.createElement('br'), 
-                            descriptionBox, document.createElement('br'), closeSidebarBtn, deleteTaskBtn);
+    sidebarActionsContainer.append(datePickerBtn, descriptionBox, deleteTaskBtn);
+    sidebarContainer.append(newStepForm, sidebarActionsContainer);
     return sidebarContainer;
 }
 
@@ -226,8 +239,6 @@ function createDatePicker(Task, sidebarContainer){
             const localDate = new Date(year, month-1, day);
             Task.setDueDate(localDate);
             const dueDate = format(Task.dueDate, 'yyyy-MM-dd');
-            console.log(dueDate);
-            console.log(typeof dueDate);
         } catch (RangeError){
             if (!datePicker.value){
                 const dueDateBtn = createDueDateBtn(Task, sidebarContainer);
@@ -235,7 +246,6 @@ function createDatePicker(Task, sidebarContainer){
                 const previousLinebreak = sidebarContainer.querySelector('br:nth-of-type(2)');
                 sidebarContainer.insertBefore(dueDateBtn, previousLinebreak);
             }
-            console.log("Invalid date");
         }
     })
     return datePicker;
@@ -244,7 +254,7 @@ function createDatePicker(Task, sidebarContainer){
 function createDescriptionBox(Task){
     const descriptionBox = document.createElement('textarea');
     if (Task.description == ''){
-        descriptionBox.placeholder = "Add description...";
+        descriptionBox.placeholder = "Add note";
     } else {
         descriptionBox.value = Task.description;
     }
@@ -280,6 +290,13 @@ function refreshList(ToDoList){
     } else {
         displayToDoList(ToDoList);
     }
+}
+
+function deleteTask() {
+    closeSidebar();
+    currentToDoList.removeTask(currentTaskIndex);
+    saveToDoLists(existingLists);
+    refreshList(currentToDoList);
 }
 
 function closeSidebar(){
