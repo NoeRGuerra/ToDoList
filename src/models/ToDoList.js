@@ -8,6 +8,7 @@ class ToDoList {
     constructor(name) {
         this.name = name;
         this.listOfTasks = [];
+        this.#setCreatedAt();
     }
 
     /**
@@ -45,6 +46,10 @@ class ToDoList {
             toDoList.addTask(task);
         });
         return toDoList;
+    }
+
+    #setCreatedAt() {
+        this.createdAt = new Date();
     }
 }
 

@@ -21,8 +21,13 @@ li {
     grid-template-columns: 1fr 4fr;
 }
 
-label, h2{
+label, h2, button{
     color: white;
+}
+
+span {
+    color: rgb(170, 170, 170);
+    font-size: 12px;
 }
 
 #list-header {
@@ -33,7 +38,6 @@ label, h2{
 button {
     padding: 10px;
     background-color: #212121;
-    color: white;
     border:none;
     font-size: 16px
 }
@@ -76,6 +80,7 @@ input[type="text"] {
     border: none;
     flex: 1;
     padding: 10px 0;
+    min-width: 15ch;
 }
 
 input[type="text"]::placeholder, textarea::placeholder{
@@ -123,7 +128,7 @@ button:hover, .active{
 
 .task-item label, .sidebar-header label {
     flex: 1;
-    padding: 10px 0;
+    padding: 10px 5px;
 }
 
 .task-item label {
@@ -158,6 +163,12 @@ button:hover, .active{
     margin-top: auto;
 }
 
+.sidebar-actions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .icon {
     width: 15px;
     height: auto;
@@ -167,7 +178,7 @@ textarea {
     background-color: #323232;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 100%;
-    height: 50%;
+    height: 20ch;
     font-size: 14px;
 }
 
@@ -214,6 +225,13 @@ textarea {
 .complete{
     text-decoration: line-through;
     color: rgb(170, 170, 170);
+}
+
+.bottom {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    place-items: center;
+    margin-top: auto;
 }
 
 .overlay {

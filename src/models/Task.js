@@ -14,6 +14,7 @@ class Task {
         this.isImportant = isImportant;
         this.steps = [];
         this.isComplete = false;
+        this.#setcreatedAt();
     }
 
     /**
@@ -98,6 +99,10 @@ class Task {
             task.addStep(step);
         });
         return task;
+    }
+
+    #setcreatedAt() {
+        this.createdAt = new Date();
     }
 }
 

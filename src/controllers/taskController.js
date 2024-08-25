@@ -2,9 +2,10 @@ import Step from "../models/Step";
 import Task from "../models/Task";
 import { displayToDoList, displayAllTasks, currentToDoList, existingLists, confirmAction } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
-import { format } from "date-fns";
+import { format, getYear } from "date-fns";
 import starSolid from "../views/icons/star-solid.svg";
 import starRegular from "../views/icons/star-regular.svg";
+import trashIcon from "../views/icons/trash-can-regular.svg";
 
 let currentTask = null;
 let currentTaskIndex = null;
@@ -199,16 +200,28 @@ function createSidebarContainer(Task, ToDoList, index) {
     const sidebarActionsContainer = document.createElement('div');
     sidebarActionsContainer.className = "sidebar-actions";
     const closeSidebarBtn = createButton('x', closeSidebar);
-    const deleteTaskBtn = createButton('Delete task', () => {
+    const bottomContainer = document.createElement('div');
+    bottomContainer.className = "bottom"
+    const deleteTaskBtn = createButton('', () => {
         confirmAction("Are you sure you want to delete this task?", deleteTask);
     });
+    const deleteTaskIcon = document.createElement('img');
+    deleteTaskIcon.src = trashIcon;
+    deleteTaskIcon.className = "icon";
+    deleteTaskBtn.prepend(deleteTaskIcon);
+    const creationTime = document.createElement('span');
+    const currentYear = getYear(new Date());
+    const taskYear = getYear(Task.createdAt);
+    const dateFormat = taskYear === currentYear ? 'EEE, MMM d' : 'EEE, MMM d, yyyy';
+    creationTime.textContent = `Created on ${format(Task.createdAt, dateFormat)}`;
     const descriptionBox = createDescriptionBox(Task);
+    bottomContainer.append(creationTime, deleteTaskBtn);
     const newStepForm = addNewStepForm(Task, ToDoList, index);
     sidebarContainer.append(closeSidebarBtn, sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
     const datePickerBtn = createDueDateBtn(Task, sidebarContainer);
     datePickerBtn.id = "dueDateBtn";
-    sidebarActionsContainer.append(datePickerBtn, descriptionBox, deleteTaskBtn);
+    sidebarActionsContainer.append(datePickerBtn, descriptionBox, bottomContainer);
     sidebarContainer.append(newStepForm, sidebarActionsContainer);
     return sidebarContainer;
 }
