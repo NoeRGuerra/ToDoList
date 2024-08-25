@@ -2,7 +2,7 @@ import Step from "../models/Step";
 import Task from "../models/Task";
 import { displayToDoList, displayAllTasks, currentToDoList, existingLists, confirmAction } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
-import { format, getYear } from "date-fns";
+import { format, getTime, getYear } from "date-fns";
 import starSolid from "../views/icons/star-solid.svg";
 import starRegular from "../views/icons/star-regular.svg";
 import trashIcon from "../views/icons/trash-can-regular.svg";
@@ -209,11 +209,7 @@ function createSidebarContainer(Task, ToDoList, index) {
     deleteTaskIcon.src = trashIcon;
     deleteTaskIcon.className = "icon";
     deleteTaskBtn.prepend(deleteTaskIcon);
-    const creationTime = document.createElement('span');
-    const currentYear = getYear(new Date());
-    const taskYear = getYear(Task.createdAt);
-    const dateFormat = taskYear === currentYear ? 'EEE, MMM d' : 'EEE, MMM d, yyyy';
-    creationTime.textContent = `Created on ${format(Task.createdAt, dateFormat)}`;
+    const creationTime = createDateLabel();
     const descriptionBox = createDescriptionBox(Task);
     bottomContainer.append(creationTime, deleteTaskBtn);
     const newStepForm = addNewStepForm(Task, ToDoList, index);
@@ -224,6 +220,24 @@ function createSidebarContainer(Task, ToDoList, index) {
     sidebarActionsContainer.append(datePickerBtn, descriptionBox, bottomContainer);
     sidebarContainer.append(newStepForm, sidebarActionsContainer);
     return sidebarContainer;
+}
+
+function createDateLabel(){
+    const creationTime = document.createElement('span');
+    let taskDate;
+    let prefix;
+    if (currentTask.isComplete){
+        taskDate = currentTask.completedAt;
+        prefix = "Completed on";
+    } else {
+        taskDate = currentTask.createdAt;
+        prefix = "Created on";
+    }
+    const taskYear = getYear(taskDate);
+    const currentYear = getYear(new Date());
+    const dateFormat = taskYear === currentYear ? 'EEE, MMM d' : 'EEE, MMM d, yyyy';
+    creationTime.textContent = `${prefix} ${format(taskDate, dateFormat)}`;
+    return creationTime;
 }
 
 function createDueDateBtn(Task, sidebarContainer){

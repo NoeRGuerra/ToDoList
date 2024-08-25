@@ -14,7 +14,10 @@ class Task {
         this.isImportant = isImportant;
         this.steps = [];
         this.isComplete = false;
+        this.createdAt = null;
+        this.completedAt = null;
         this.#setcreatedAt();
+        this.#setcompletedAt();
     }
 
     /**
@@ -52,6 +55,7 @@ class Task {
      */
     markComplete() {
         this.isComplete = true;
+        this.#setcompletedAt();
     }
 
     /**
@@ -59,6 +63,7 @@ class Task {
      */
     markIncomplete() {
         this.isComplete = false;
+        this.#setcompletedAt();
     }
 
     markImportant() {
@@ -98,11 +103,23 @@ class Task {
             const step = Step.fromObject(stepObj);
             task.addStep(step);
         });
+        task.createdAt = obj.createdAt;
+        if (task.isComplete && !task.completedAt){
+            task.#setcompletedAt();
+        }
         return task;
     }
 
     #setcreatedAt() {
-        this.createdAt = new Date();
+        if (!this.createdAt){
+            this.createdAt = new Date();
+        }
+    }
+
+    #setcompletedAt() {
+        if (this.isComplete){
+            this.completedAt = new Date();
+        }
     }
 }
 
