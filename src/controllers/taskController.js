@@ -2,7 +2,7 @@ import Step from "../models/Step";
 import Task from "../models/Task";
 import { displayToDoList, displayAllTasks, currentToDoList, existingLists, confirmAction } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
-import { format, getTime, getYear } from "date-fns";
+import { differenceInCalendarDays, format, getTime, getYear, sub } from "date-fns";
 import starSolid from "../views/icons/star-solid.svg";
 import starRegular from "../views/icons/star-regular.svg";
 import trashIcon from "../views/icons/trash-can-regular.svg";
@@ -37,6 +37,7 @@ function addNewStepForm(Task, ToDoList, index) {
         e.preventDefault();
         const newStepName = newStepInput.value;
         if (newStepName === ''){
+            newStepForm.blur();
             return;
         }
         const newStep = new Step(newStepName);
@@ -109,13 +110,6 @@ function createStepElement(step, index){
     return stepElement;
 }
 
-function displayTask(Task, ToDoList, index){
-    const listContainer = document.querySelector(".right");
-    const taskContainer = createTaskContainer(Task, ToDoList, index);
-    taskContainer.className = "task-item";
-    listContainer.appendChild(taskContainer);
-}
-
 function createTaskContainer(Task, ToDoList, index){
     const taskContainer = document.createElement('div');
     const checkbox = createCheckbox(Task, index, ToDoList);
@@ -136,8 +130,16 @@ function createTaskContainer(Task, ToDoList, index){
     })
     checkbox.addEventListener('change', () => {
         label.classList.toggle('complete');
+        displayToDoList(currentToDoList);
     })
-    taskContainer.append(checkbox, label, markImportantTaskBtn);
+    const daysRemaining = differenceInCalendarDays(Task.dueDate, new Date());
+    if (daysRemaining <= 3 && !Task.isComplete){
+        const daysRemainingLabel = document.createElement('span');
+        daysRemainingLabel.textContent = `Due in ${daysRemaining} days`;
+        taskContainer.append(checkbox, label, daysRemainingLabel, markImportantTaskBtn);
+    } else {
+        taskContainer.append(checkbox, label, markImportantTaskBtn);
+    }
     return taskContainer;
 }
 
@@ -215,7 +217,7 @@ function createSidebarContainer(Task, ToDoList, index) {
     const newStepForm = addNewStepForm(Task, ToDoList, index);
     sidebarContainer.append(closeSidebarBtn, sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
-    const datePickerBtn = createDueDateBtn(Task, sidebarContainer);
+    const datePickerBtn = createDueDateBtn(Task, sidebarActionsContainer);
     datePickerBtn.id = "dueDateBtn";
     sidebarActionsContainer.append(datePickerBtn, descriptionBox, bottomContainer);
     sidebarContainer.append(newStepForm, sidebarActionsContainer);
@@ -245,10 +247,17 @@ function createDueDateBtn(Task, sidebarContainer){
     if (existingDatePicker){
         sidebarContainer.removeChild(existingDatePicker);
     }
-    const btn = createButton('Add due date', () => {
+    let text = "Add due date";
+    if (Task.dueDate) {
+        const taskYear = getYear(Task.dueDate);
+        const currentYear = getYear(new Date());
+        const dateFormat = taskYear === currentYear ? 'EEE, MMM d' : 'EEE, MMM d, yyyy';
+        text = `Due on ${format(Task.dueDate, dateFormat)}`;
+    }
+    const btn = createButton(text, () => {
         sidebarContainer.removeChild(btn);
         const datePicker =  createDatePicker(Task, sidebarContainer);
-        const previousLinebreak = sidebarContainer.querySelector('br:nth-of-type(2)');
+        const previousLinebreak = sidebarContainer.querySelector('textarea');
         sidebarContainer?.insertBefore(datePicker, previousLinebreak);
         datePicker.focus();
         datePicker.showPicker();
@@ -266,6 +275,9 @@ function createDatePicker(Task, sidebarContainer){
             const localDate = new Date(year, month-1, day);
             Task.setDueDate(localDate);
             const dueDate = format(Task.dueDate, 'yyyy-MM-dd');
+            saveToDoLists(existingLists);
+            refreshList(currentToDoList);
+            openTaskSidebar(Task, currentToDoList, currentTaskIndex);
         } catch (RangeError){
             if (!datePicker.value){
                 const dueDateBtn = createDueDateBtn(Task, sidebarContainer);
@@ -297,6 +309,21 @@ function createSidebarHeaderContainer(Task, ToDoList, index){
     sidebarHeaderContainer.classList.add('sidebar-header');
     const checkbox = createCheckbox(Task, 'sidebar-task-complete', ToDoList);
     const taskTitle = createLabel(Task.name, 'sidebar-task-complete');
+    taskTitle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const textInput = createTextInput(taskTitle.textContent, () => {
+            const textValue = textInput.value;
+            if (textValue.length > 0){
+                Task.name = textValue;
+                saveToDoLists(existingLists);
+            }
+            openTaskSidebar(Task, currentToDoList, currentTaskIndex);
+            refreshList(currentToDoList);
+        });
+        sidebarHeaderContainer.removeChild(taskTitle);
+        sidebarHeaderContainer.insertBefore(textInput, markImportantTaskBtn);
+        textInput.focus();
+    })
     const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
     sidebarHeaderContainer.append(checkbox, taskTitle, markImportantTaskBtn);
     return sidebarHeaderContainer;
@@ -307,6 +334,23 @@ function createButton(text, onClick){
     button.textContent = text;
     button.addEventListener('click', onClick);
     return button;
+}
+
+function createTextInput(defaultText=null, onFocusOut=null){
+    const textInput = document.createElement('input');
+    textInput.type = "text";
+    if (defaultText){
+        textInput.value = defaultText;
+    }
+    if (onFocusOut){
+        textInput.addEventListener('focusout', onFocusOut);
+    }
+    textInput.addEventListener('keydown', (e) => {
+        if (e.key === "Enter"){
+            textInput.blur();
+        }
+    })
+    return textInput;
 }
 
 function refreshList(ToDoList){
@@ -339,7 +383,7 @@ export {
     addNewTaskForm,
     markTaskAsImportant,
     displaySteps,
-    displayTask,
     closeSidebar,
-    createButton
+    createButton,
+    createTaskContainer,
 };

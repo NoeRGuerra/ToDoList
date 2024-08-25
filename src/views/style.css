@@ -21,7 +21,7 @@ li {
     grid-template-columns: 1fr 4fr;
 }
 
-label, h2, button{
+label, h2, button, div{
     color: white;
 }
 
@@ -87,6 +87,13 @@ input[type="text"]::placeholder, textarea::placeholder{
     color: rgb(214, 214, 214);
 }
 
+input[type="date"]{
+    background-color: #212121;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+}
+
 button:hover, .active{
     background-color: #323232;
 }
@@ -106,11 +113,18 @@ button:hover, .active{
     background-size: cover;
     padding: 25px;
     min-width: 20ch;
+    overflow: hidden;
 }
 
 .list-name {
     font-weight: 100;
     margin-bottom: 10px;
+}
+
+.tasks {
+    overflow-y: auto;
+    max-height: 80%;
+    scrollbar-width: thin;
 }
 
 .task-item, .sidebar-header {

@@ -1,5 +1,5 @@
 import '../views/style.css';
-import { addNewTaskForm, closeSidebar, displayTask, createButton } from './taskController';
+import { addNewTaskForm, closeSidebar, createTaskContainer, createButton } from './taskController';
 import ToDoList from '../models/ToDoList';
 import Task from '../models/Task';
 import Step from '../models/Step';
@@ -173,10 +173,26 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     setCurrentToDoList(ToDoList);
     const rightDiv = document.querySelector(".right");
     const headerContainer = createHeaderElement(ToDoList.name);
+    const tasksContainer = document.createElement('div');
+    const pendingTasksContainer = document.createElement('div');
+    const completedTasksContainer = document.createElement('div');
+    completedTasksContainer.textContent = "Completed";
     rightDiv.append(headerContainer);
     ToDoList.listOfTasks.forEach((task, index) => {
-        displayTask(task, ToDoList, index);
-    })
+        const taskContainer = createTaskContainer(task, ToDoList, index);
+        taskContainer.className = 'task-item';
+        if (!task.isComplete){
+            pendingTasksContainer.append(taskContainer);
+        } else {
+            completedTasksContainer.append(taskContainer);
+        }
+    });
+    tasksContainer.append(pendingTasksContainer);
+    tasksContainer.className = "tasks";
+    if (completedTasksContainer.childElementCount > 0){
+        tasksContainer.append(completedTasksContainer);
+    }
+    rightDiv.append(tasksContainer);
     if (!disableNewTaskForm){
         addNewTaskForm(ToDoList);
     }
