@@ -8,7 +8,6 @@ import houseIcon from "../views/icons/house-solid.svg";
 import allBorderIcon from "../views/icons/border-all-solid.svg";
 import barsIcon from "../views/icons/bars-solid.svg";
 import starIcon from "../views/icons/star-solid-white.svg";
-import trashIcon from "../views/icons/trash-can-regular.svg";
 
 const existingLists = loadToDoLists();
 let currentToDoList = null;
@@ -271,7 +270,7 @@ function confirmAction(text, onClick){
     const cancelBtn = createButton('Cancel', () => {
         removePopup();
     });
-    warningContainer.append(paragraph, document.createElement('br'), okBtn, cancelBtn);
+    warningContainer.append(paragraph, okBtn, cancelBtn);
     overlayContainer.append(warningContainer);
     listContainer.append(overlayContainer);
 }

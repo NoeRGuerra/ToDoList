@@ -2,9 +2,7 @@ import Step from "../models/Step";
 import Task from "../models/Task";
 import { displayToDoList, displayAllTasks, currentToDoList, existingLists, confirmAction } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
-import { differenceInCalendarDays, format, getTime, getYear, sub } from "date-fns";
-import starSolid from "../views/icons/star-solid.svg";
-import starRegular from "../views/icons/star-regular.svg";
+import { differenceInCalendarDays, format, getYear} from "date-fns";
 import trashIcon from "../views/icons/trash-can-regular.svg";
 
 let currentTask = null;
