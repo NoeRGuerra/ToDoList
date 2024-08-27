@@ -1,6 +1,6 @@
 import Step from "../models/Step";
 import Task from "../models/Task";
-import { displayToDoList, displayAllTasks, currentToDoList, existingLists, confirmAction } from './todoListController';
+import { displayToDoList, displayImportantTasks, displayAllTasks, currentToDoList, existingLists, confirmAction, setCurrentToDoList, listType } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
 import { differenceInCalendarDays, format, getYear} from "date-fns";
 import trashIcon from "../views/icons/trash-can-regular.svg";
@@ -108,22 +108,23 @@ function createStepElement(step, index){
     return stepElement;
 }
 
-function createTaskContainer(Task, ToDoList, index){
+function createTaskContainer(Task, ToDoList, taskIndex){
     const taskContainer = document.createElement('div');
-    const checkbox = createCheckbox(Task, index, ToDoList);
-    const label = createLabel(Task.name, index);
+    const checkbox = createCheckbox(Task, taskIndex, ToDoList);
+    const label = createLabel(Task.name, taskIndex);
     if (Task.isComplete){
         label.className = "complete";
     }
-    const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, index);
+    const markImportantTaskBtn = createMarkImportantButton(Task, ToDoList, taskIndex);
     label.addEventListener('click', (e) => {
         e.preventDefault();
-        if (document.querySelector('.sidebar-display') && currentTaskIndex === index){
+        if (document.querySelector('.sidebar-display') && currentTaskIndex === taskIndex){
             closeSidebar();
         } else {
         currentTask = Task;
-        currentTaskIndex = index;
-        openTaskSidebar(Task, ToDoList, index);
+        currentTaskIndex = taskIndex;
+        setCurrentToDoList(ToDoList);
+        openTaskSidebar(Task, ToDoList, taskIndex);
         }
     })
     checkbox.addEventListener('change', () => {
@@ -185,25 +186,29 @@ function createMarkImportantButton(Task, ToDoList, index) {
     return markImportantTaskBtn;
 }
 
-function openTaskSidebar(Task, ToDoList, index){
+function openTaskSidebar(Task, ToDoList, taskIndex){
     closeSidebar();
     const parentContainer = document.querySelector(".homepage");
-    const sidebarContainer = createSidebarContainer(Task, ToDoList, index);
+    const sidebarContainer = createSidebarContainer(Task, ToDoList, taskIndex);
     parentContainer.appendChild(sidebarContainer);
     parentContainer.classList.toggle('sidebar-active');
 }
 
-function createSidebarContainer(Task, ToDoList, index) {
+function createSidebarContainer(Task, ToDoList, taskIndex) {
     const sidebarContainer = document.createElement('div');
     sidebarContainer.classList.add('sidebar-display');
-    const sidebarHeaderContainer = createSidebarHeaderContainer(Task, ToDoList, index);
+    const sidebarHeaderContainer = createSidebarHeaderContainer(Task, ToDoList, taskIndex);
     const sidebarActionsContainer = document.createElement('div');
     sidebarActionsContainer.className = "sidebar-actions";
     const closeSidebarBtn = createButton('x', closeSidebar);
     const bottomContainer = document.createElement('div');
     bottomContainer.className = "bottom"
     const deleteTaskBtn = createButton('', () => {
-        confirmAction("Are you sure you want to delete this task?", deleteTask);
+        confirmAction("Are you sure you want to delete this task?", () => {
+            let match = taskIndex.match(/(\d+)$/);
+            let taskIndexInt = parseInt(match[0], 10);
+            deleteTask(ToDoList, taskIndexInt);
+        });
     });
     const deleteTaskIcon = document.createElement('img');
     deleteTaskIcon.src = trashIcon;
@@ -212,7 +217,7 @@ function createSidebarContainer(Task, ToDoList, index) {
     const creationTime = createDateLabel();
     const descriptionBox = createDescriptionBox(Task);
     bottomContainer.append(creationTime, deleteTaskBtn);
-    const newStepForm = addNewStepForm(Task, ToDoList, index);
+    const newStepForm = addNewStepForm(Task, ToDoList, taskIndex);
     sidebarContainer.append(closeSidebarBtn, sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
     const datePickerBtn = createDueDateBtn(Task, sidebarActionsContainer);
@@ -352,18 +357,19 @@ function createTextInput(defaultText=null, onFocusOut=null){
 }
 
 function refreshList(ToDoList){
-    const totalTasks = document.querySelectorAll(`.right>div>input[data-list]`).length;
-    const listTasks = document.querySelectorAll(`.right>div>input[data-list="${ToDoList.name}"]`).length;
-    if (totalTasks != listTasks){
+    if (listType === 1){
         displayAllTasks();
-    } else {
+    } else if (listType === 2){
+        displayImportantTasks();
+    }
+    else {
         displayToDoList(ToDoList);
     }
 }
 
-function deleteTask() {
+function deleteTask(toDoList=null, taskIndex=null) {
     closeSidebar();
-    currentToDoList.removeTask(currentTaskIndex);
+    toDoList.removeTask(taskIndex);
     saveToDoLists(existingLists);
     refreshList(currentToDoList);
 }

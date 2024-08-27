@@ -12,6 +12,7 @@ import starIcon from "../views/icons/star-solid-white.svg";
 const existingLists = loadToDoLists();
 let currentToDoList = null;
 let currentIndex = null;
+let listType = null; // 0 - Regular, 1 - All tasks, 2 - Important
 
 function createDefaultList() {
     const todayList = new ToDoList('Today');
@@ -168,18 +169,21 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     if (currentToDoList !== ToDoList){
         closeSidebar();
     }
+    listType = 0;
     clearDisplayedToDoList();
     setCurrentToDoList(ToDoList);
     const rightDiv = document.querySelector(".right");
-    const headerContainer = createHeaderElement(ToDoList.name);
+    const headerContainer = currentIndex === 0 ? createHeaderElement(ToDoList.name, false) : createHeaderElement(ToDoList.name, true);
     const tasksContainer = document.createElement('div');
     const pendingTasksContainer = document.createElement('div');
     const completedTasksContainer = document.createElement('div');
     completedTasksContainer.textContent = "Completed";
     rightDiv.append(headerContainer);
-    ToDoList.listOfTasks.forEach((task, index) => {
-        const taskContainer = createTaskContainer(task, ToDoList, index);
+    ToDoList.listOfTasks.forEach((task, taskIndex) => {
+        const taskId = `list-1-task-${taskIndex}`;
+        const taskContainer = createTaskContainer(task, ToDoList, taskId);
         taskContainer.className = 'task-item';
+        taskContainer.setAttribute(`data-task-index`, taskIndex);
         if (!task.isComplete){
             pendingTasksContainer.append(taskContainer);
         } else {
@@ -197,48 +201,82 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     }
 }
 
-function createHeaderElement(title){
+function createHeaderElement(title, enableDelete=true){
     const headerContainer = document.createElement('div');
     headerContainer.id = "list-header";
     const heading = document.createElement('h2');
     heading.textContent = title;
     heading.className = "list-name";
-    if (currentIndex === 0 || !currentIndex){
-        headerContainer.appendChild(heading);
+    headerContainer.appendChild(heading);
+    if (!enableDelete){
         return headerContainer;
     }
     const deleteBtn = createButton('', () => {
         confirmAction("Are you sure you want to delete this list?", removeToDoList);
     });
     deleteBtn.classList.add('delete');
-    headerContainer.append(heading, deleteBtn);
+    headerContainer.append(deleteBtn);
     return headerContainer;
 }
 
 function displayAllTasks(){
-    closeSidebar();
+    if (listType !== 1){
+        closeSidebar();
+    }
+    listType = 1;
     clearDisplayedToDoList();
-    const allTasks = new ToDoList("All tasks");
-    existingLists.forEach((list) => {
-        list.listOfTasks.forEach((task) => {
-            allTasks.addTask(task)
+    const container = document.querySelector('.right');
+    const heading = createHeaderElement("All tasks", false);
+    const allTasksContainer = document.createElement('div');
+    allTasksContainer.className = "tasks";
+    existingLists.forEach((todoList, index) => {
+        const currentListContainer = document.createElement('div');
+        currentListContainer.textContent = todoList.name;
+        currentListContainer.setAttribute('data-list-index', index);
+        todoList.listOfTasks.forEach((task, taskIndex) => {
+            if (task.isComplete){
+                return;
+            }
+            const taskId = `list-${index}-task-${taskIndex}`;
+            const taskContainer = createTaskContainer(task, todoList, taskId);
+            taskContainer.className = "task-item";
+            taskContainer.setAttribute('data-task-index', taskIndex);
+            currentListContainer.append(taskContainer);
         });
+        allTasksContainer.append(currentListContainer);
     });
-    displayToDoList(allTasks, true);
+    container.append(heading, allTasksContainer);
 }
 
+
 function displayImportantTasks(){
-    closeSidebar();
+    if (listType !== 2){
+        closeSidebar();
+    }
+    listType = 2;
     clearDisplayedToDoList();
-    const importantTasks = new ToDoList("Important tasks")
-    existingLists.forEach((list) => {
-        list.listOfTasks.forEach((task) => {
-            if (task.isImportant) {
-                importantTasks.addTask(task);
+    const container = document.querySelector('.right');
+    const heading = createHeaderElement("Important tasks", false);
+    const allTasksContainer = document.createElement('div');
+    allTasksContainer.className = "tasks";
+    existingLists.forEach((todoList, index) => {
+        const currentListContainer = document.createElement('div');
+        currentListContainer.setAttribute('data-list-index', index);
+        todoList.listOfTasks.forEach((task, taskIndex) => {
+            if (!task.isImportant){
+                return;
             }
+            const taskId = `list-${index}-task-${taskIndex}`;
+            const taskContainer = createTaskContainer(task, todoList, taskId);
+            taskContainer.className = "task-item";
+            taskContainer.setAttribute('data-task-index', taskIndex);
+            currentListContainer.append(taskContainer);
         });
+        if (currentListContainer.hasChildNodes()){
+            allTasksContainer.append(currentListContainer);
+        }
     });
-    displayToDoList(importantTasks, true);
+    container.append(heading, allTasksContainer);
 }
 
 function removeToDoList(){
@@ -289,7 +327,11 @@ export {
     createDemoLists,
     populateListsContainer,
     displayAllTasks,
+    displayImportantTasks,
     existingLists,
     currentToDoList,
-    confirmAction
+    confirmAction,
+    setCurrentToDoList,
+    listType,
+    showDefaultList
 };
