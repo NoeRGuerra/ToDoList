@@ -292,3 +292,22 @@ textarea {
     display: none;
     color: red;
 }
+
+.completed-tag {
+    display: inline-block;
+    color: white;
+    background-color: #212121;
+    padding: 2px;
+    border-radius: 5px;
+    margin: 2px;
+    cursor: default;
+    font-size: 16px;
+}
+
+.inactive {
+    display: none;
+}
+
+.completed-tag:hover{
+    background-color: #323232;
+}

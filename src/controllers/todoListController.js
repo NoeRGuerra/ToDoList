@@ -189,7 +189,12 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     const tasksContainer = document.createElement('div');
     const pendingTasksContainer = document.createElement('div');
     const completedTasksContainer = document.createElement('div');
-    completedTasksContainer.textContent = "Completed";
+    const completedTag = document.createElement('span');
+    completedTag.textContent = "Completed";
+    completedTag.classList.add("completed-tag", "inactive");
+    completedTag.addEventListener('click', () => {
+        completedTasksContainer.classList.toggle('inactive');
+    })
     rightDiv.append(headerContainer);
     ToDoList.listOfTasks.forEach((task, taskIndex) => {
         const taskId = `list-1-task-${taskIndex}`;
@@ -202,9 +207,11 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
             completedTasksContainer.append(taskContainer);
         }
     });
-    tasksContainer.append(pendingTasksContainer);
+    tasksContainer.append(pendingTasksContainer, completedTag);
     tasksContainer.className = "tasks";
-    if (completedTasksContainer.childElementCount > 0){
+    if (completedTasksContainer.childElementCount > 1){
+        completedTag.textContent = `Completed ${completedTasksContainer.childElementCount}`;
+        completedTag.classList.remove('inactive');
         tasksContainer.append(completedTasksContainer);
     }
     rightDiv.append(tasksContainer);
