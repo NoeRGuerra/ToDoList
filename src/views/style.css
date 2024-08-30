@@ -43,7 +43,10 @@ button {
 }
 
 .left {
+    display: flex;
+    flex-direction: column;
     min-width: 20ch;
+    padding: 25px 0;
 }
 
 .left button, .sidebar-actions button {
@@ -56,6 +59,12 @@ button {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+#lists{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 form{
@@ -159,7 +168,7 @@ button:hover, .active{
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding: 0 5px;
+    padding: 25px 5px;
     min-width: 20ch;
 }
 
