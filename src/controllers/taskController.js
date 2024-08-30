@@ -11,7 +11,6 @@ let currentTaskIndex = null;
 function addNewTaskForm(ToDoList) {
     const container = document.querySelector(".right");
     const newTaskForm = createNewTaskForm();
-    container.appendChild(newTaskForm);
 
     newTaskForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -24,6 +23,21 @@ function addNewTaskForm(ToDoList) {
         saveToDoLists(existingLists);
         displayToDoList(ToDoList);
     });
+
+    const newTaskInput = newTaskForm.querySelector('input[type="text"]');
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'char-limit-message';
+    messageSpan.textContent = `Task names cannot be longer than ${newTaskInput.maxLength} characters`;
+    
+    newTaskInput.addEventListener('input', () => {
+        if (newTaskInput.value.length >= newTaskInput.maxLength) {
+            messageSpan.style.display = 'block';
+        } else {
+            messageSpan.style.display = 'none';
+        }
+    })
+
+    container.append(newTaskForm, messageSpan);
 }
 
 function addNewStepForm(Task, ToDoList, index) {    
@@ -31,6 +45,7 @@ function addNewStepForm(Task, ToDoList, index) {
     newStepForm.className = "new-step-form";
     const newStepInput = newStepForm.querySelector('input[type="text"]');
     newStepInput.placeholder = "Next Step";
+    newStepInput.maxLength = 30;
     newStepForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const newStepName = newStepInput.value;
@@ -42,19 +57,23 @@ function addNewStepForm(Task, ToDoList, index) {
         Task.addStep(newStep);
         saveToDoLists(existingLists);
         openTaskSidebar(currentTask, ToDoList, index);
-    });
+    });  
     return newStepForm;
 }
 
 function createNewTaskForm(){
     const newTaskForm = document.createElement('form');
     newTaskForm.className = "new-task-form";
+    
     const newTaskInput = document.createElement('input');
     newTaskInput.type = 'text';
     newTaskInput.placeholder = "New Task";
+    newTaskInput.maxLength = 60;
+    
     const newTaskSubmit = document.createElement('input');
     newTaskSubmit.type = 'submit';
     newTaskSubmit.value = "+";
+    
     newTaskForm.append(newTaskSubmit, newTaskInput);
     return newTaskForm;
 }
@@ -216,14 +235,40 @@ function createSidebarContainer(Task, ToDoList, taskIndex) {
     deleteTaskBtn.prepend(deleteTaskIcon);
     const creationTime = createDateLabel();
     const descriptionBox = createDescriptionBox(Task);
+    const descriptionLimitMessage  = document.createElement('span');
+    descriptionLimitMessage.className = 'char-limit-message';
+    descriptionLimitMessage.textContent = `Notes cannot be longer than ${descriptionBox.maxLength} characters`;
+    
+    descriptionBox.addEventListener('input', () => {
+        if (descriptionBox.value.length >= descriptionBox.maxLength) {
+            descriptionLimitMessage.style.display = 'block';
+        } else {
+            descriptionLimitMessage.style.display = 'none';
+        }
+    })
+
     bottomContainer.append(creationTime, deleteTaskBtn);
     const newStepForm = addNewStepForm(Task, ToDoList, taskIndex);
+    const newStepInput = newStepForm.querySelector('input[type="text"]');
+
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'char-limit-message';
+    messageSpan.textContent = `Step names cannot be longer than ${newStepInput.maxLength} characters`;
+    
+    newStepInput.addEventListener('input', () => {
+        if (newStepInput.value.length >= newStepInput.maxLength) {
+            messageSpan.style.display = 'block';
+        } else {
+            messageSpan.style.display = 'none';
+        }
+    })
+
     sidebarContainer.append(closeSidebarBtn, sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
     const datePickerBtn = createDueDateBtn(Task, sidebarActionsContainer);
     datePickerBtn.id = "dueDateBtn";
-    sidebarActionsContainer.append(datePickerBtn, descriptionBox, bottomContainer);
-    sidebarContainer.append(newStepForm, sidebarActionsContainer);
+    sidebarActionsContainer.append(datePickerBtn, descriptionBox,descriptionLimitMessage, bottomContainer);
+    sidebarContainer.append(newStepForm, messageSpan, sidebarActionsContainer);
     return sidebarContainer;
 }
 
@@ -300,6 +345,7 @@ function createDescriptionBox(Task){
     } else {
         descriptionBox.value = Task.description;
     }
+    descriptionBox.maxLength = 800;
     descriptionBox.addEventListener('focusout', () => {
         Task.setDescription(descriptionBox.value);
         saveToDoLists(existingLists);

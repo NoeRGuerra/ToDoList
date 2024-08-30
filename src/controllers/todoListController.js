@@ -129,13 +129,11 @@ function addNewListForm() {
     const newListInput = document.createElement('input');
     newListInput.type = 'text';
     newListInput.placeholder = "New List";
+    newListInput.maxLength = 30;
     const newListSubmit = document.createElement('input');
     newListSubmit.type = 'submit';
     newListSubmit.value = "+";
-    newListForm.appendChild(newListSubmit);
-    newListForm.appendChild(newListInput);
-    container.appendChild(newListForm);
-
+    
     newListSubmit.addEventListener('click', (e) => {
         e.preventDefault();
         const newListName = newListInput.value;
@@ -145,6 +143,20 @@ function addNewListForm() {
         populateListsContainer();
         saveToDoLists(existingLists);
     });
+
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'char-limit-message';
+    messageSpan.textContent = `List names cannot be longer than ${newListInput.maxLength} characters`;
+    
+    newListInput.addEventListener('input', () => {
+        if (newListInput.value.length >= newListInput.maxLength) {
+            messageSpan.style.display = 'inline';
+        } else {
+            messageSpan.style.display = 'none';
+        }
+    })
+    newListForm.append(newListSubmit, newListInput);
+    container.append(newListForm, messageSpan);
 }
 
 function clearAllLists() {
