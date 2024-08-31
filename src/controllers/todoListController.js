@@ -8,6 +8,7 @@ import houseIcon from "../views/icons/house-solid.svg";
 import allBorderIcon from "../views/icons/border-all-solid.svg";
 import barsIcon from "../views/icons/bars-solid.svg";
 import starIcon from "../views/icons/star-solid-white.svg";
+import gearIcon from "../views/icons/gear-solid.svg";
 import { format } from "date-fns";
 
 const existingLists = loadToDoLists();
@@ -22,8 +23,8 @@ function createDefaultList() {
 
 function populateLeftSidebar() {
     const mainContainer = document.querySelector('.left');
-    const currentDate = createTodayDateSpan();
-    mainContainer.append(currentDate);
+    const settingsContainer = createSettingsContainer();
+    mainContainer.append(settingsContainer);
 
     const topListsContainer = createTopListsContainer();
 
@@ -35,6 +36,25 @@ function populateLeftSidebar() {
     const maxInputLengthMessage = createMaxInputLengthMessage(newListInput);
 
     mainContainer.append(topListsContainer, userListsContainer, newListForm, maxInputLengthMessage);
+}
+
+function refreshLeftSidebarLists() {
+    const userListsContainer = document.querySelector("#lists");
+    userListsContainer.replaceWith(createUserListsContainer());
+}
+
+function createSettingsContainer() {
+    const settingsContainer = document.createElement('div');
+    settingsContainer.classList.add('settings');
+    const settingsButton = document.createElement('button');
+    const settingsIcon = document.createElement('img');
+    settingsIcon.className = "icon"
+    settingsIcon.src = gearIcon;
+    settingsButton.prepend(settingsIcon);
+    const currentDate = createTodayDateSpan();
+    settingsContainer.append(currentDate, settingsButton);
+
+    return settingsContainer
 }
 
 function createTopListsContainer() {
@@ -169,8 +189,9 @@ function createNewListForm() {
         const newList = new ToDoList(newListName);
         existingLists.push(newList);
         clearAllLists();
-        populateListsContainer();
+        refreshLeftSidebarLists();
         saveToDoLists(existingLists);
+        newListInput.value = "";
     });
     newListForm.append(newListSubmit, newListInput);
 
@@ -180,11 +201,11 @@ function createNewListForm() {
 function createMaxInputLengthMessage(inputElement) {
     const messageSpan = document.createElement('span');
     messageSpan.className = 'char-limit-message';
-    messageSpan.textContent = `List names cannot be longer than ${inputElement.maxLength} characters`;
+    messageSpan.textContent = `Input cannot be longer than ${inputElement.maxLength} characters`;
     
     inputElement.addEventListener('input', () => {
         if (inputElement.value.length >= inputElement.maxLength) {
-            messageSpan.style.display = 'inline';
+            messageSpan.style.display = 'block';
         } else {
             messageSpan.style.display = 'none';
         }
@@ -230,13 +251,15 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     setCurrentToDoList(ToDoList);
     const rightDiv = document.querySelector(".right");
     const headerContainer = currentIndex === 0 ? createHeaderElement(ToDoList.name, false) : createHeaderElement(ToDoList.name, true);
+    const emptyListMsg = createEmptyListMessage();
+    emptyListMsg.classList.toggle('inactive');
     const tasksContainer = document.createElement('div');
     const pendingTasksContainer = document.createElement('div');
     const completedTasksContainer = document.createElement('div');
     const completedTag = createFoldingButton('Completed');
     completedTag.classList.toggle("inactive");
     completedTasksContainer.append(completedTag);
-    rightDiv.append(headerContainer);
+    rightDiv.append(headerContainer, emptyListMsg);
     ToDoList.listOfTasks.forEach((task, taskIndex) => {
         const taskId = `list-1-task-${taskIndex}`;
         const taskContainer = createTaskContainer(task, ToDoList, taskId);
@@ -259,6 +282,20 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     if (!disableNewTaskForm){
         addNewTaskForm(ToDoList);
     }
+    if (ToDoList.isEmpty()){
+        emptyListMsg.classList.toggle('inactive');
+    }
+}
+
+function createEmptyListMessage() {
+    const container = document.createElement('div');
+    container.className = 'empty-list-message';
+    const title = document.createElement('h2');
+    title.textContent = "This list is empty";
+    const paragraph = document.createElement('p');
+    paragraph.textContent = 'Write a New Task below and press Enter to submit'
+    container.append(title, paragraph);
+    return container;
 }
 
 function createHeaderElement(title, enableDelete=true){
@@ -393,5 +430,6 @@ export {
     setCurrentToDoList,
     listType,
     showDefaultList,
-    populateLeftSidebar
+    populateLeftSidebar,
+    createMaxInputLengthMessage
 };

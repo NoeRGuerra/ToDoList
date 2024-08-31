@@ -1,6 +1,6 @@
 import Step from "../models/Step";
 import Task from "../models/Task";
-import { displayToDoList, displayImportantTasks, displayAllTasks, currentToDoList, existingLists, confirmAction, setCurrentToDoList, listType } from './todoListController';
+import { displayToDoList, displayImportantTasks, displayAllTasks, currentToDoList, existingLists, confirmAction, setCurrentToDoList, listType, createMaxInputLengthMessage } from './todoListController';
 import { saveToDoLists } from "../utils/storage";
 import { differenceInCalendarDays, format, getYear} from "date-fns";
 import trashIcon from "../views/icons/trash-can-regular.svg";
@@ -25,17 +25,7 @@ function addNewTaskForm(ToDoList) {
     });
 
     const newTaskInput = newTaskForm.querySelector('input[type="text"]');
-    const messageSpan = document.createElement('span');
-    messageSpan.className = 'char-limit-message';
-    messageSpan.textContent = `Task names cannot be longer than ${newTaskInput.maxLength} characters`;
-    
-    newTaskInput.addEventListener('input', () => {
-        if (newTaskInput.value.length >= newTaskInput.maxLength) {
-            messageSpan.style.display = 'block';
-        } else {
-            messageSpan.style.display = 'none';
-        }
-    })
+    const messageSpan = createMaxInputLengthMessage(newTaskInput);
 
     container.append(newTaskForm, messageSpan);
 }
@@ -235,33 +225,13 @@ function createSidebarContainer(Task, ToDoList, taskIndex) {
     deleteTaskBtn.prepend(deleteTaskIcon);
     const creationTime = createDateLabel();
     const descriptionBox = createDescriptionBox(Task);
-    const descriptionLimitMessage  = document.createElement('span');
-    descriptionLimitMessage.className = 'char-limit-message';
-    descriptionLimitMessage.textContent = `Notes cannot be longer than ${descriptionBox.maxLength} characters`;
-    
-    descriptionBox.addEventListener('input', () => {
-        if (descriptionBox.value.length >= descriptionBox.maxLength) {
-            descriptionLimitMessage.style.display = 'block';
-        } else {
-            descriptionLimitMessage.style.display = 'none';
-        }
-    })
+    const descriptionLimitMessage  = createMaxInputLengthMessage(descriptionBox);
 
     bottomContainer.append(creationTime, deleteTaskBtn);
     const newStepForm = addNewStepForm(Task, ToDoList, taskIndex);
     const newStepInput = newStepForm.querySelector('input[type="text"]');
 
-    const messageSpan = document.createElement('span');
-    messageSpan.className = 'char-limit-message';
-    messageSpan.textContent = `Step names cannot be longer than ${newStepInput.maxLength} characters`;
-    
-    newStepInput.addEventListener('input', () => {
-        if (newStepInput.value.length >= newStepInput.maxLength) {
-            messageSpan.style.display = 'block';
-        } else {
-            messageSpan.style.display = 'none';
-        }
-    })
+    const messageSpan = createMaxInputLengthMessage(newStepInput);
 
     sidebarContainer.append(closeSidebarBtn, sidebarHeaderContainer);
     displaySteps(Task, sidebarContainer);
