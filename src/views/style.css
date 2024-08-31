@@ -311,3 +311,9 @@ textarea {
 .completed-tag:hover{
     background-color: #323232;
 }
+
+.folding-btn {
+    padding: 5px;
+    margin: 5px 0;
+    font-size: 14px;
+}

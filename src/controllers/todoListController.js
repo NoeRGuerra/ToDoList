@@ -159,6 +159,20 @@ function addNewListForm() {
     container.append(newListForm, messageSpan);
 }
 
+function createFoldingButton(text) {
+    // Hide all task-items inside the parent container
+    const foldingBtn = document.createElement('button');
+    foldingBtn.textContent = text;
+    foldingBtn.classList.add("folding-btn");
+    foldingBtn.addEventListener('click', () => {
+        const parentContainer = foldingBtn.parentElement;
+        parentContainer.querySelectorAll('.task-item').forEach((taskContainer) => {
+            taskContainer.classList.toggle('inactive');
+        });
+    });
+    return foldingBtn;
+}
+
 function clearAllLists() {
     const listsContainer = document.querySelector("#lists");
     listsContainer.replaceChildren();
@@ -173,10 +187,6 @@ function setCurrentToDoList(ToDoList) {
     currentToDoList = ToDoList;
 }
 
-function getCurrentToDoList() {
-    return currentToDoList;
-}
-
 function displayToDoList(ToDoList, disableNewTaskForm=false) {
     if (currentToDoList !== ToDoList){
         closeSidebar();
@@ -189,12 +199,9 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     const tasksContainer = document.createElement('div');
     const pendingTasksContainer = document.createElement('div');
     const completedTasksContainer = document.createElement('div');
-    const completedTag = document.createElement('span');
-    completedTag.textContent = "Completed";
-    completedTag.classList.add("completed-tag", "inactive");
-    completedTag.addEventListener('click', () => {
-        completedTasksContainer.classList.toggle('inactive');
-    })
+    const completedTag = createFoldingButton('Completed');
+    completedTag.classList.toggle("inactive");
+    completedTasksContainer.append(completedTag);
     rightDiv.append(headerContainer);
     ToDoList.listOfTasks.forEach((task, taskIndex) => {
         const taskId = `list-1-task-${taskIndex}`;
@@ -207,11 +214,11 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
             completedTasksContainer.append(taskContainer);
         }
     });
-    tasksContainer.append(pendingTasksContainer, completedTag);
+    tasksContainer.append(pendingTasksContainer);
     tasksContainer.className = "tasks";
     if (completedTasksContainer.childElementCount > 1){
         completedTag.textContent = `Completed ${completedTasksContainer.childElementCount}`;
-        completedTag.classList.remove('inactive');
+        completedTag.classList.toggle('inactive');
         tasksContainer.append(completedTasksContainer);
     }
     rightDiv.append(tasksContainer);
@@ -249,8 +256,9 @@ function displayAllTasks(){
     const allTasksContainer = document.createElement('div');
     allTasksContainer.className = "tasks";
     existingLists.forEach((todoList, index) => {
+        const foldingBtn = createFoldingButton(todoList.name);
         const currentListContainer = document.createElement('div');
-        currentListContainer.textContent = todoList.name;
+        currentListContainer.append(foldingBtn);
         currentListContainer.setAttribute('data-list-index', index);
         todoList.listOfTasks.forEach((task, taskIndex) => {
             if (task.isComplete){
