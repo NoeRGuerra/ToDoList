@@ -8,6 +8,7 @@ import houseIcon from "../views/icons/house-solid.svg";
 import allBorderIcon from "../views/icons/border-all-solid.svg";
 import barsIcon from "../views/icons/bars-solid.svg";
 import starIcon from "../views/icons/star-solid-white.svg";
+import { format } from "date-fns";
 
 const existingLists = loadToDoLists();
 let currentToDoList = null;
@@ -16,16 +17,32 @@ let listType = null; // 0 - Regular, 1 - All tasks, 2 - Important
 
 function createDefaultList() {
     const todayList = new ToDoList('Today');
-    const task1 = new Task('Finish program');
-    todayList.addTask(task1);
     existingLists.push(todayList);
 }
 
-function addTopLists() {
+function populateLeftSidebar() {
+    const mainContainer = document.querySelector('.left');
+    const currentDate = createTodayDateSpan();
+    mainContainer.append(currentDate);
+
+    const topListsContainer = createTopListsContainer();
+
+    const userListsContainer = createUserListsContainer();
+
+    const newListForm = createNewListForm();
+
+    const newListInput = newListForm.querySelector('input[type="text"]');
+    const maxInputLengthMessage = createMaxInputLengthMessage(newListInput);
+
+    mainContainer.append(topListsContainer, userListsContainer, newListForm, maxInputLengthMessage);
+}
+
+function createTopListsContainer() {
     if (existingLists.length === 0){
         createDefaultList();
     }
-    const container = document.querySelector("#top-lists");
+    const topListsContainer = document.createElement('div');
+    topListsContainer.id = "top-lists";
     const defaultList = existingLists[0];
     const defaultListContainer = document.createElement('div');
     defaultListContainer.setAttribute('data-todolist-index', 0);
@@ -51,7 +68,18 @@ function addTopLists() {
     importantTasksIcon.className = "icon";
     importantTasksBtn.prepend(importantTasksIcon);
     importantTasksContainer.append(importantTasksBtn);
-    container.append(defaultListContainer, allTasksContainer, importantTasksContainer);
+    topListsContainer.append(defaultListContainer, allTasksContainer, importantTasksContainer);
+
+    return topListsContainer;
+}
+
+function createTodayDateSpan() {
+    const date = new Date();
+    const formattedDate = format(date, 'EEEE, MMMM, do');
+    const span = document.createElement('span');
+    span.className = "date";
+    span.textContent = formattedDate;
+    return span;
 }
 
 function createDemoLists() {
@@ -103,8 +131,9 @@ function createDemoLists() {
     existingLists.push(getGroceriesList);
 }
 
-function populateListsContainer() {
-    const listsContainer = document.querySelector("#lists");
+function createUserListsContainer() {
+    const userListsContainer = document.createElement('div');
+    userListsContainer.id = 'lists';
     existingLists.slice(1).forEach((list, index) => {
         const todoListContainer = document.createElement('div');
         const listBtn = createButton(list.name, () => {
@@ -117,13 +146,13 @@ function populateListsContainer() {
         listBtn.prepend(listIcon);
         todoListContainer.setAttribute('data-todolist-index', index+1);
         todoListContainer.append(listBtn);
-        listsContainer.appendChild(todoListContainer);
+        userListsContainer.appendChild(todoListContainer);
     })
-    addNewListForm();
+
+    return userListsContainer;
 }
 
-function addNewListForm() {
-    const container = document.querySelector("#lists");
+function createNewListForm() {
     const newListForm = document.createElement('form');
     newListForm.className = "new-list-form";
     const newListInput = document.createElement('input');
@@ -143,20 +172,25 @@ function addNewListForm() {
         populateListsContainer();
         saveToDoLists(existingLists);
     });
+    newListForm.append(newListSubmit, newListInput);
 
+    return newListForm;
+}
+
+function createMaxInputLengthMessage(inputElement) {
     const messageSpan = document.createElement('span');
     messageSpan.className = 'char-limit-message';
-    messageSpan.textContent = `List names cannot be longer than ${newListInput.maxLength} characters`;
+    messageSpan.textContent = `List names cannot be longer than ${inputElement.maxLength} characters`;
     
-    newListInput.addEventListener('input', () => {
-        if (newListInput.value.length >= newListInput.maxLength) {
+    inputElement.addEventListener('input', () => {
+        if (inputElement.value.length >= inputElement.maxLength) {
             messageSpan.style.display = 'inline';
         } else {
             messageSpan.style.display = 'none';
         }
     })
-    newListForm.append(newListSubmit, newListInput);
-    container.append(newListForm, messageSpan);
+    
+    return messageSpan;
 }
 
 function createFoldingButton(text) {
@@ -217,7 +251,7 @@ function displayToDoList(ToDoList, disableNewTaskForm=false) {
     tasksContainer.append(pendingTasksContainer);
     tasksContainer.className = "tasks";
     if (completedTasksContainer.childElementCount > 1){
-        completedTag.textContent = `Completed ${completedTasksContainer.childElementCount}`;
+        completedTag.textContent = `Completed ${completedTasksContainer.childElementCount - 1}`;
         completedTag.classList.toggle('inactive');
         tasksContainer.append(completedTasksContainer);
     }
@@ -349,10 +383,8 @@ function removePopup(){
 }
 
 export {
-    addTopLists,
     displayToDoList,
     createDemoLists,
-    populateListsContainer,
     displayAllTasks,
     displayImportantTasks,
     existingLists,
@@ -360,5 +392,6 @@ export {
     confirmAction,
     setCurrentToDoList,
     listType,
-    showDefaultList
+    showDefaultList,
+    populateLeftSidebar
 };

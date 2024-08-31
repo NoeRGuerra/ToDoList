@@ -51,6 +51,10 @@ class ToDoList {
     #setCreatedAt() {
         this.createdAt = new Date();
     }
+
+    isEmpty() {
+        return this.listOfTasks.length === 0;
+    }
 }
 
 export default ToDoList;

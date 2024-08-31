@@ -1,9 +1,8 @@
 import './views/style.css';
-import { createDemoLists, populateListsContainer, existingLists, addTopLists, showDefaultList } from './controllers/todoListController';
+import { createDemoLists, populateLeftSidebar, showDefaultList } from './controllers/todoListController';
 
-addTopLists();
-if (existingLists.length <= 1){
-    createDemoLists();
-}
-populateListsContainer();
+// if (existingLists.length <= 1){
+//     createDemoLists();
+// }
+populateLeftSidebar();
 showDefaultList();

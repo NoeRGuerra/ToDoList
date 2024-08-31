@@ -46,7 +46,7 @@ button {
     display: flex;
     flex-direction: column;
     min-width: 20ch;
-    padding: 25px 0;
+    padding: 0 0 25px 0;
 }
 
 .left button, .sidebar-actions button {
@@ -315,5 +315,10 @@ textarea {
 .folding-btn {
     padding: 5px;
     margin: 5px 0;
+    font-size: 14px;
+}
+
+.date {
+    text-align: center;
     font-size: 14px;
 }
